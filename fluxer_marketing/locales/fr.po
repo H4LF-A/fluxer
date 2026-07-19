@@ -5,12 +5,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fluxer-marketing\n"
 "POT-Creation-Date: 2026-06-16 00:00+0000\n"
-"PO-Revision-Date: 2026-06-16 00:00+0000\n"
+"PO-Revision-Date: 2026-07-19 13:54+0000\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: French <https://weblate.fluxer.tools/projects/fluxer/"
+"marketing/fr/>\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #. Compact UI label used in the home-page communities/moderation feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.communities.community_support
@@ -53,7 +57,8 @@ msgstr "Rôles et permissions précis"
 msgctxt "app.communities.roles_permissions_audit.keep_running_smoothly"
 msgid "Keep your community running smoothly with roles, permissions, and logs."
 msgstr ""
-"Assure le bon fonctionnement de ta communauté avec des rôles, des permissions et des journaux."
+"Assure le bon fonctionnement de ta communauté avec des rôles, des "
+"permissions et des journaux."
 
 #. Short UI label or heading used in the home-page communities/moderation feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.communities.title
@@ -71,7 +76,8 @@ msgstr "Vérification de la communauté"
 #: fluxer_marketing/generated:app.communities.verification.value_statement
 msgctxt "app.communities.verification.value_statement"
 msgid "Your community gets verified status for authenticity and trust."
-msgstr "Ta communauté obtient le statut vérifié pour l'authenticité et la confiance."
+msgstr ""
+"Ta communauté obtient le statut vérifié pour l'authenticité et la confiance."
 
 #. Compact UI label used in the home-page communities/moderation feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.communities.verification.verified_community
@@ -90,7 +96,8 @@ msgstr "Avatars et bannières animés"
 msgctxt "app.customization.animated_profile.stand_out_animated_profile"
 msgid "Stand out with animated profile pictures and banners to express your personality."
 msgstr ""
-"Démarque-toi avec des photos de profil et des bannières animées pour exprimer ta personnalité."
+"Démarque-toi avec des photos de profil et des bannières animées pour "
+"exprimer ta personnalité."
 
 #. Compact UI label used in the home-page customization feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.customization.app_icon_badges
@@ -121,7 +128,8 @@ msgstr "Sons d'entrée personnalisés"
 msgctxt "app.customization.custom_sounds.set_personalized_join_sounds"
 msgid "Set personalized sounds when you join voice channels to make your presence known."
 msgstr ""
-"Définis des sons personnalisés lorsque tu rejoins des salons vocaux pour faire connaître ta présence."
+"Définis des sons personnalisés lorsque tu rejoins des salons vocaux pour "
+"faire connaître ta présence."
 
 #. Compact UI label used in the home-page customization feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.customization.custom_themes
@@ -140,7 +148,8 @@ msgstr "Accès global aux emoji et stickers"
 msgctxt "app.customization.saved_media_and_css"
 msgid "Add custom emojis, save media for later, and style the app with custom CSS."
 msgstr ""
-"Ajoute des emojis personnalisés, garde des médias pour plus tard et personnalise l'application avec du CSS personnalisé."
+"Ajoute des emojis personnalisés, garde des médias pour plus tard et "
+"personnalise l'application avec du CSS personnalisé."
 
 #. Short UI label or heading used in the home-page customization feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.customization.title
@@ -164,7 +173,9 @@ msgstr "Utilise des emojis animés"
 #: fluxer_marketing/generated:app.messaging.description
 msgctxt "app.messaging.description"
 msgid "DM your friends, chat with groups, or build communities with channels."
-msgstr "Envoie des MP à tes amis, discute en groupe ou crée des communautés avec des salons."
+msgstr ""
+"Envoie des MP à tes amis, discute en groupe ou crée des communautés avec des "
+"salons."
 
 #. Compact UI label used in the home-page messaging feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.messaging.features.bookmarked_messages
@@ -188,7 +199,9 @@ msgstr "Prise en charge complète de Markdown dans les messages"
 #: fluxer_marketing/generated:app.messaging.features.message_scheduling.description
 msgctxt "app.messaging.features.message_scheduling.description"
 msgid "Schedule messages to be sent at a specific time in the future. No {delorean} required."
-msgstr "Programme l'envoi de messages à une heure précise à l'avenir. Pas besoin de {delorean}."
+msgstr ""
+"Programme l'envoi de messages à une heure précise à l'avenir. Pas besoin de "
+"{delorean}."
 
 #. Compact UI label used in the home-page messaging feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.messaging.features.organised_channels_for_communities
@@ -219,7 +232,8 @@ msgstr "Filtre par utilisateurs, dates et plus encore"
 msgctxt "app.messaging.features.search.find_old_messages"
 msgid "Find old messages or jump between communities and channels in seconds."
 msgstr ""
-"Retrouve d'anciens messages ou navigue entre les communautés et les salons en quelques secondes."
+"Retrouve d'anciens messages ou navigue entre les communautés et les salons "
+"en quelques secondes."
 
 #. Short UI label or heading used in the home-page messaging feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.messaging.features.search.label
@@ -298,7 +312,8 @@ msgstr "Partage d'écran intégré"
 msgctxt "app.voice_and_video.features.stream_4k_60fps"
 msgid "Stream up to 4K resolution at 60 fps so others can see you in stunning clarity."
 msgstr ""
-"Diffuse jusqu'à 4K à 60 i/s pour que les autres puissent te voir avec une clarté époustouflante."
+"Diffuse jusqu'à 4K à 60 i/s pour que les autres puissent te voir avec une "
+"clarté époustouflante."
 
 #. Compact UI label used in the home-page voice and video feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.voice_and_video.features.up_to_4k_video_quality
@@ -311,7 +326,8 @@ msgstr "Qualité vidéo jusqu'à 4K"
 msgctxt "app.voice_and_video.features.video_backgrounds.description"
 msgid "Store up to 15 video backgrounds for calls. No more Downloads folder scavenger hunts."
 msgstr ""
-"Stocke jusqu'à 15 arrière-plans vidéo pour les appels. Plus besoin de fouiller le dossier téléchargements."
+"Stocke jusqu'à 15 arrière-plans vidéo pour les appels. Plus besoin de "
+"fouiller le dossier téléchargements."
 
 #. Compact UI label used in the home-page voice and video feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.voice_and_video.features.video_quality
@@ -335,7 +351,8 @@ msgstr "Jusqu'à 4K/60i/s"
 #: fluxer_marketing/generated:app.voice_and_video.hop_in_a_call
 msgctxt "app.voice_and_video.hop_in_a_call"
 msgid "Hop in a call with friends or share your screen to work together."
-msgstr "Rejoins un appel avec des amis ou partage ton écran pour travailler ensemble."
+msgstr ""
+"Rejoins un appel avec des amis ou partage ton écran pour travailler ensemble."
 
 #. Short UI label or heading used in the home-page voice and video feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.voice_and_video.title
@@ -365,7 +382,9 @@ msgstr "Retour au blog"
 #: fluxer_marketing/generated:blog.description
 msgctxt "blog.description"
 msgid "Updates, roadmap notes, and engineering write-ups from the {product_name} team."
-msgstr "Actualités, notes de feuille de route et articles techniques de l'équipe {product_name}."
+msgstr ""
+"Actualités, notes de feuille de route et articles techniques de l'équipe "
+"{product_name}."
 
 #. Short heading for RSS and Atom links on the blog index. Keep it compact.
 #: fluxer_marketing/generated:blog.feeds
@@ -396,7 +415,10 @@ msgstr "Comment j'ai créé {product_name}, une appli de chat façon {discord}"
 msgctxt "blog.post.mobile_clients_and_fluxer_v2.description"
 msgid ""
 "{product_name} v2 is out, mobile clients are open source, self-hosting is improving, and public development is moving back to GitHub."
-msgstr "La v2 de {product_name} est disponible, les clients mobiles sont open source, l'auto-hébergement s'améliore et le développement public retourne sur GitHub."
+msgstr ""
+"La v2 de {product_name} est disponible, les clients mobiles sont open "
+"source, l'auto-hébergement s'améliore et le développement public retourne "
+"sur GitHub."
 
 #. Blog article title shown in cards, article pages, metadata, and feeds. Keep Fluxer as a product name and v2 as the release name. Preserve placeholders exactly.
 #: fluxer_marketing/generated:blog.post.mobile_clients_and_fluxer_v2.title
@@ -410,7 +432,9 @@ msgctxt "blog.post.roadmap_2026.description"
 msgid ""
 "The current 2026 roadmap for {product_name}: canary, mobile, self-hosting, federation, voice and video, and the backend reliability work behind it."
 msgstr ""
-"La feuille de route actuelle de {product_name} pour 2026 : canary, mobile, auto-hébergement, fédération, voix et vidéo, ainsi que le travail de fiabilité du backend qui les soutient."
+"La feuille de route actuelle de {product_name} pour 2026 : canary, mobile, "
+"auto-hébergement, fédération, voix et vidéo, ainsi que le travail de "
+"fiabilité du backend qui les soutient."
 
 #. Blog article title shown in cards, article pages, metadata, and feeds. Refers to Fluxer's 2026 product roadmap.
 #: fluxer_marketing/generated:blog.post.roadmap_2026.title
@@ -519,7 +543,8 @@ msgstr "Carrières chez {product_name}"
 msgctxt "company_and_resources.careers.hero_description"
 msgid "We are not hiring right now. These pages are notes on roles we may open later."
 msgstr ""
-"Nous ne recrutons pas actuellement. Ces pages décrivent des rôles que nous pourrions ouvrir plus tard."
+"Nous ne recrutons pas actuellement. Ces pages décrivent des rôles que nous "
+"pourrions ouvrir plus tard."
 
 #. Short UI label or heading on the careers and future roles pages. Use clear hiring language, avoid implying that roles are currently open unless the source says so, and preserve placeholders exactly.
 #: fluxer_marketing/generated:company_and_resources.careers.label
@@ -543,7 +568,8 @@ msgstr "Postes futurs"
 #: fluxer_marketing/generated:company_and_resources.careers.open_positions_description
 msgctxt "company_and_resources.careers.open_positions_description"
 msgid "A short list of work we may hire for later."
-msgstr "Une courte liste de travaux pour lesquels nous pourrions recruter plus tard."
+msgstr ""
+"Une courte liste de travaux pour lesquels nous pourrions recruter plus tard."
 
 #. Short UI label or heading on the careers and future roles pages. Use clear hiring language, avoid implying that roles are currently open unless the source says so, and preserve placeholders exactly.
 #: fluxer_marketing/generated:company_and_resources.careers.posted
@@ -592,7 +618,8 @@ msgstr "Centre d'aide"
 msgctxt "company_and_resources.help.help_center_description"
 msgid "Find answers to common questions about your account, privacy, and using {product_name}."
 msgstr ""
-"Trouve des réponses aux questions courantes sur ton compte, ta vie privée et l'utilisation de {product_name}."
+"Trouve des réponses aux questions courantes sur ton compte, ta vie privée et "
+"l'utilisation de {product_name}."
 
 #. Short UI label or heading for help-center links or descriptions in marketing navigation and resource sections. Keep it service-oriented and concise.
 #: fluxer_marketing/generated:company_and_resources.help.label
@@ -707,7 +734,8 @@ msgstr "Contribue sur {github}"
 msgctxt "company_and_resources.source_and_contribution.fluxer_built_in_open"
 msgid "{product_name} is built in the open. Pick the path that fits how you like to help."
 msgstr ""
-"{product_name} est développé en toute transparence. Choisis la manière dont tu souhaites contribuer."
+"{product_name} est développé en toute transparence. Choisis la manière dont "
+"tu souhaites contribuer."
 
 #. Button or link label in the open-source contribution/get-involved section. Keep the tone welcoming and concrete, and preserve email placeholders exactly.
 #: fluxer_marketing/generated:company_and_resources.source_and_contribution.get_involved
@@ -727,7 +755,10 @@ msgctxt "company_and_resources.source_and_contribution.translation.llm_translati
 msgid ""
 "All translations are currently LLM-generated with minimal human revision. We'd love to get real people to help us localize {product_name} into your language. To do so, email {l10n_email} and we'll be happy to accept your contributions."
 msgstr ""
-"Toutes les traductions sont actuellement générées automatiquement avec une révision humaine minimale. Nous aimerions que de vraies personnes nous aident à localiser {product_name} dans ta langue. Pour ce faire, envoie un e-mail à {l10n_email} et on sera ravis d'accepter tes contributions."
+"Toutes les traductions sont actuellement générées automatiquement avec une "
+"révision humaine minimale. Nous aimerions que de vraies personnes nous "
+"aident à localiser {product_name} dans ta langue. Pour ce faire, envoie un e-"
+"mail à {l10n_email} et on sera ravis d'accepter tes contributions."
 
 #. Department or policy category label on content pages. Translate as a compact noun phrase, not as a sentence.
 #: fluxer_marketing/generated:content.labels.community
@@ -783,7 +814,9 @@ msgctxt "content.jobs.community_lead.description"
 msgid ""
 "Look after our public voice and the communities around {product_name}. Talk with people, share what's new, and bring what you hear back to the team."
 msgstr ""
-"Faire vivre notre voix publique et les communautés autour de {product_name}. Échanger avec les utilisateurs, partager les nouveautés et remonter leurs retours à l'équipe."
+"Faire vivre notre voix publique et les communautés autour de {product_name}. "
+"Échanger avec les utilisateurs, partager les nouveautés et remonter leurs "
+"retours à l'équipe."
 
 #. Job title shown on careers pages. Translate as a professional role title.
 #: fluxer_marketing/generated:content.jobs.community_lead.title
@@ -797,7 +830,9 @@ msgctxt "content.jobs.platform_engineer.description"
 msgid ""
 "Look after the systems {product_name} runs on: pipelines, databases, dashboards, on-call, and the quiet machinery that keeps everything humming."
 msgstr ""
-"Veiller sur les systèmes qui font tourner {product_name} : pipelines, bases de données, tableaux de bord, astreinte et l'infrastructure discrète qui maintient le service."
+"Veiller sur les systèmes qui font tourner {product_name} : pipelines, bases "
+"de données, tableaux de bord, astreinte et l'infrastructure discrète qui "
+"maintient le service."
 
 #. Job title shown on careers pages. Translate as a professional infrastructure/platform engineering role title.
 #: fluxer_marketing/generated:content.jobs.platform_engineer.title
@@ -811,7 +846,8 @@ msgctxt "content.jobs.privacy_and_legal_counsel.description"
 msgid ""
 "Handle {product_name}'s legal and privacy side: GDPR, DSA, DMCA, law-enforcement requests, and the policies that go with them."
 msgstr ""
-"Gérer le volet juridique et confidentialité de {product_name} : RGPD, DSA, DMCA, demandes des forces de l'ordre et les politiques associées."
+"Gérer le volet juridique et confidentialité de {product_name} : RGPD, DSA, "
+"DMCA, demandes des forces de l'ordre et les politiques associées."
 
 #. Job title shown on careers pages. Translate as a professional privacy/legal counsel role title.
 #: fluxer_marketing/generated:content.jobs.privacy_and_legal_counsel.title
@@ -825,7 +861,8 @@ msgctxt "content.jobs.product_engineer.description"
 msgid ""
 "Build the bits people open {product_name} to use, top to bottom: web, mobile, desktop, and the services behind them."
 msgstr ""
-"Construire les fonctions pour lesquelles les gens ouvrent {product_name}, de bout en bout : web, mobile, desktop et services qui les soutiennent."
+"Construire les fonctions pour lesquelles les gens ouvrent {product_name}, de "
+"bout en bout : web, mobile, desktop et services qui les soutiennent."
 
 #. Job title shown on careers pages. Translate as a professional product engineering role title.
 #: fluxer_marketing/generated:content.jobs.product_engineer.title
@@ -839,7 +876,9 @@ msgctxt "content.jobs.support_specialist.description"
 msgid ""
 "Be the friendly first reply when someone hits a snag. Help users sort things out and bring the rough edges back to the team to fix."
 msgstr ""
-"Être la première réponse rassurante quand quelqu'un rencontre un problème. Aider les utilisateurs à avancer et remonter les frictions à l'équipe pour correction."
+"Être la première réponse rassurante quand quelqu'un rencontre un problème. "
+"Aider les utilisateurs à avancer et remonter les frictions à l'équipe pour "
+"correction."
 
 #. Job title shown on careers pages. Translate as a professional customer/user support role title.
 #: fluxer_marketing/generated:content.jobs.support_specialist.title
@@ -853,7 +892,8 @@ msgctxt "content.jobs.trust_and_safety_specialist.description"
 msgid ""
 "Work through abuse reports, make fair calls, and help shape the policies and tooling that keep {product_name} somewhere people want to be."
 msgstr ""
-"Traiter les signalements d'abus, prendre des décisions équitables et aider à façonner les règles et outils qui gardent {product_name} accueillant."
+"Traiter les signalements d'abus, prendre des décisions équitables et aider à "
+"façonner les règles et outils qui gardent {product_name} accueillant."
 
 #. Job title shown on careers pages. Translate as a professional moderation/safety operations role title.
 #: fluxer_marketing/generated:content.jobs.trust_and_safety_specialist.title
@@ -867,7 +907,9 @@ msgctxt "content.policies.changelog.description"
 msgid ""
 "A record of significant changes to our Terms of Service, Privacy Policy, and Community Guidelines."
 msgstr ""
-"Un historique des changements importants apportés à nos Conditions d'utilisation, à notre Politique de confidentialité et à nos Règles de la communauté."
+"Un historique des changements importants apportés à nos Conditions "
+"d'utilisation, à notre Politique de confidentialité et à nos Règles de la "
+"communauté."
 
 #. Policy page title. Translate as a record of changes to legal/community policies.
 #: fluxer_marketing/generated:content.policies.changelog.title
@@ -881,7 +923,8 @@ msgctxt "content.policies.company_information.description"
 msgid ""
 "Legal details for {product_name} Platform AB, including how we make money and how to contact us."
 msgstr ""
-"Informations légales sur {product_name} Platform AB, y compris notre modèle économique et les moyens de nous contacter."
+"Informations légales sur {product_name} Platform AB, y compris notre modèle "
+"économique et les moyens de nous contacter."
 
 #. Policy page title for legal company details. Translate as formal company information.
 #: fluxer_marketing/generated:content.policies.company_information.title
@@ -894,7 +937,8 @@ msgstr "Informations sur l'entreprise"
 msgctxt "content.policies.guidelines.description"
 msgid "Clear standards for using {product_name}, protecting others, and keeping communities safe."
 msgstr ""
-"Des règles claires pour utiliser {product_name}, protéger les autres et garder les communautés sûres."
+"Des règles claires pour utiliser {product_name}, protéger les autres et "
+"garder les communautés sûres."
 
 #. Policy page title for community rules. Translate as formal community guidelines.
 #: fluxer_marketing/generated:content.policies.guidelines.title
@@ -908,7 +952,8 @@ msgctxt "content.policies.privacy.description"
 msgid ""
 "How {product_name} handles personal data, what we do not do with it, and the controls and rights you have."
 msgstr ""
-"Comment {product_name} traite les données personnelles, ce que nous n'en faisons pas, ainsi que les contrôles et droits dont vous disposez."
+"Comment {product_name} traite les données personnelles, ce que nous n'en "
+"faisons pas, ainsi que les contrôles et droits dont vous disposez."
 
 #. Policy page title. Translate as a formal privacy policy.
 #: fluxer_marketing/generated:content.policies.privacy.title
@@ -921,7 +966,8 @@ msgstr "Politique de confidentialité"
 msgctxt "content.policies.security.description"
 msgid "How to report security issues, what is in scope, and how safe harbor works."
 msgstr ""
-"Comment signaler les failles de sécurité, ce qui est couvert et le fonctionnement du safe harbor."
+"Comment signaler les failles de sécurité, ce qui est couvert et le "
+"fonctionnement du safe harbor."
 
 #. Policy page title for security vulnerability reporting. Translate as a bug bounty/security reporting page.
 #: fluxer_marketing/generated:content.policies.security.title
@@ -935,7 +981,8 @@ msgctxt "content.policies.terms.description"
 msgid ""
 "The agreement between you and {product_name}, written to explain your rights and responsibilities clearly."
 msgstr ""
-"L'accord entre vous et {product_name}, rédigé pour expliquer clairement vos droits et responsabilités."
+"L'accord entre vous et {product_name}, rédigé pour expliquer clairement vos "
+"droits et responsabilités."
 
 #. Policy page title. Translate as formal terms of service.
 #: fluxer_marketing/generated:content.policies.terms.title
@@ -1003,7 +1050,9 @@ msgctxt "content.help.article.plutonium_promotion_march_2026.description"
 msgid ""
 "A limited-time promotion offering a free 7-day {premium_tier_name} trial for new users and gift codes for existing {premium_tier_name} subscribers."
 msgstr ""
-"Une promotion à durée limitée offrant un essai {premium_tier_name} gratuit de 7 jours aux nouveaux utilisateurs et des codes cadeaux aux abonnés {premium_tier_name} existants."
+"Une promotion à durée limitée offrant un essai {premium_tier_name} gratuit "
+"de 7 jours aux nouveaux utilisateurs et des codes cadeaux aux abonnés "
+"{premium_tier_name} existants."
 
 #. Help article title asking about the retired Fluxer Visionary tier. Keep 'Fluxer Visionary' as a proper name. Preserve placeholders exactly.
 #: fluxer_marketing/generated:content.help.article.visionary.title
@@ -1017,7 +1066,9 @@ msgctxt "content.help.article.visionary.description"
 msgid ""
 "{visionary_tier_full_name} was a limited lifetime {premium_tier_name} offering that sold out in February 2026. Learn about the numbered badge and what {visionary_tier_name} includes."
 msgstr ""
-"{visionary_tier_full_name} était une offre {premium_tier_name} à vie en édition limitée, épuisée en février 2026. Découvrez le badge numéroté et ce qu'inclut {visionary_tier_name}."
+"{visionary_tier_full_name} était une offre {premium_tier_name} à vie en "
+"édition limitée, épuisée en février 2026. Découvrez le badge numéroté et ce "
+"qu'inclut {visionary_tier_name}."
 
 #. Help article title about how file attachments eventually expire. Keep it as an explanatory phrase.
 #: fluxer_marketing/generated:content.help.article.attachment_expiry.title
@@ -1031,7 +1082,8 @@ msgctxt "content.help.article.attachment_expiry.description"
 msgid ""
 "How we set attachment expiry, how access can extend it, and what to do before a file is removed."
 msgstr ""
-"Comment nous définissons l'expiration des pièces jointes, comment leur accès peut la prolonger et que faire avant la suppression d'un fichier."
+"Comment nous définissons l'expiration des pièces jointes, comment leur accès "
+"peut la prolonger et que faire avant la suppression d'un fichier."
 
 #. Help article title about filing bug reports.
 #: fluxer_marketing/generated:content.help.article.report_bug.title
@@ -1045,7 +1097,8 @@ msgctxt "content.help.article.report_bug.description"
 msgid ""
 "How to file clear, high-quality bug reports for the {product_name} support team or our {github}."
 msgstr ""
-"Comment rédiger des rapports de bug clairs et de qualité pour l'équipe d'assistance {product_name} ou notre {github}."
+"Comment rédiger des rapports de bug clairs et de qualité pour l'équipe "
+"d'assistance {product_name} ou notre {github}."
 
 #. Help article title about updating a user's date of birth via support.
 #: fluxer_marketing/generated:content.help.article.change_date_of_birth.title
@@ -1058,7 +1111,8 @@ msgstr "Comment modifier votre date de naissance"
 msgctxt "content.help.article.change_date_of_birth.description"
 msgid "How to update your date of birth on {product_name} by contacting our support team."
 msgstr ""
-"Comment mettre à jour votre date de naissance sur {product_name} en contactant notre équipe d'assistance."
+"Comment mettre à jour votre date de naissance sur {product_name} en "
+"contactant notre équipe d'assistance."
 
 #. Help article title about requesting deletion of user data.
 #: fluxer_marketing/generated:content.help.article.data_deletion.title
@@ -1082,7 +1136,9 @@ msgstr "Exporter les données de votre compte"
 #: fluxer_marketing/generated:content.help.article.data_export.description
 msgctxt "content.help.article.data_export.description"
 msgid "How to request and download a complete export of your {product_name} data."
-msgstr "Comment demander et télécharger un export complet de vos données {product_name}."
+msgstr ""
+"Comment demander et télécharger un export complet de vos données "
+"{product_name}."
 
 #. Help article title about deleting or disabling an account.
 #: fluxer_marketing/generated:content.help.article.delete_account.title
@@ -1096,7 +1152,8 @@ msgctxt "content.help.article.delete_account.description"
 msgid ""
 "How to permanently delete or temporarily disable your {product_name} account, and what happens to your data."
 msgstr ""
-"Comment supprimer définitivement ou désactiver temporairement votre compte {product_name}, et ce qu'il advient de vos données."
+"Comment supprimer définitivement ou désactiver temporairement votre compte "
+"{product_name}, et ce qu'il advient de vos données."
 
 #. Help article title about country-specific minimum-age requirements for using the service.
 #: fluxer_marketing/generated:content.help.article.minimum_age.title
@@ -1110,21 +1167,24 @@ msgctxt "content.help.article.minimum_age.description"
 msgid ""
 "The minimum age to use {product_name} by country, how age is determined, and what happens if an account is suspected of being underage."
 msgstr ""
-"L''ge minimum pour utiliser {product_name} selon le pays, comment l''ge est déterminé et ce qui se passe si un compte est soupçonné d'être mineur."
+"L''ge minimum pour utiliser {product_name} selon le pays, comment l''ge est "
+"déterminé et ce qui se passe si un compte est soupçonné d'être mineur."
 
 #. Help article title about the copyright/IP complaint process. Keep legal-sounding phrasing.
 #: fluxer_marketing/generated:content.help.article.copyright.title
 msgctxt "content.help.article.copyright.title"
 msgid "Copyright and intellectual property complaints policy"
 msgstr ""
-"Politique relative aux plaintes pour atteinte au droit d'auteur et à la propriété intellectuelle"
+"Politique relative aux plaintes pour atteinte au droit d'auteur et à la "
+"propriété intellectuelle"
 
 #. Help article summary about copyright/IP complaint reporting. Keep 'Fluxer' as a brand name. Preserve placeholders exactly.
 #: fluxer_marketing/generated:content.help.article.copyright.description
 msgctxt "content.help.article.copyright.description"
 msgid "How to report suspected copyright or intellectual property violations on {product_name}."
 msgstr ""
-"Comment signaler les violations présumées du droit d'auteur ou de la propriété intellectuelle sur {product_name}."
+"Comment signaler les violations présumées du droit d'auteur ou de la "
+"propriété intellectuelle sur {product_name}."
 
 #. Help article title about data retention durations. Keep 'Fluxer' as a brand name. Preserve placeholders exactly.
 #: fluxer_marketing/generated:content.help.article.data_retention.title
@@ -1137,7 +1197,8 @@ msgstr "Durée de conservation de vos informations par {product_name}"
 msgctxt "content.help.article.data_retention.description"
 msgid "How long {product_name} retains different types of information and why we keep it."
 msgstr ""
-"Combien de temps {product_name} conserve différents types d'informations et pourquoi nous les conservons."
+"Combien de temps {product_name} conserve différents types d'informations et "
+"pourquoi nous les conservons."
 
 #. Help article title about EU Digital Services Act dispute options. Keep 'EU DSA' as an acronym.
 #: fluxer_marketing/generated:content.help.article.dsa_dispute_resolution.title
@@ -1151,7 +1212,8 @@ msgctxt "content.help.article.dsa_dispute_resolution.description"
 msgid ""
 "How EU users covered by the Digital Services Act can exercise their rights on {product_name}."
 msgstr ""
-"Comment les utilisateurs de l'UE couverts par le Digital Services Act peuvent exercer leurs droits sur {product_name}."
+"Comment les utilisateurs de l'UE couverts par le Digital Services Act "
+"peuvent exercer leurs droits sur {product_name}."
 
 #. Help article title about region-specific access restrictions.
 #: fluxer_marketing/generated:content.help.article.regional_restrictions.title
@@ -1165,7 +1227,9 @@ msgctxt "content.help.article.regional_restrictions.description"
 msgid ""
 "How regional age verification laws affect your access to {product_name}, which regions are currently affected, and what restrictions apply."
 msgstr ""
-"Comment les lois régionales de vérification d''ge affectent votre accès à {product_name}, quelles régions sont actuellement concernées et quelles restrictions s'appliquent."
+"Comment les lois régionales de vérification d''ge affectent votre accès à "
+"{product_name}, quelles régions sont actuellement concernées et quelles "
+"restrictions s'appliquent."
 
 #. Accessible label on the small icon button next to help/policy article headings; clicking copies a deep link to that section.
 #: fluxer_marketing/generated:content.help.copy_link_to_section
@@ -1197,7 +1261,9 @@ msgctxt "donations.errors.active_subscription_exists"
 msgid ""
 "You already have an active recurring donation. To start a different recurring donation, please cancel your current one first using the customer portal. You can make a one-time donation instead."
 msgstr ""
-"Tu as déjà un don récurrent en cours. Pour faire un autre don récurrent, annule d'abord ton don actuel via le portail donateur. Tu peux faire un don unique à la place."
+"Tu as déjà un don récurrent en cours. Pour faire un autre don récurrent, "
+"annule d'abord ton don actuel via le portail donateur. Tu peux faire un don "
+"unique à la place."
 
 #. Body copy in the donation flow. Prioritize clarity, trust, and form usability; preserve amount, currency, email, and status placeholders exactly.
 #: fluxer_marketing/generated:donations.errors.generic
@@ -1319,13 +1385,16 @@ msgctxt "donations.manage.description"
 msgid ""
 "Enter your email to receive a link to your donor portal, where you can manage subscriptions, download invoices, and view your donation history."
 msgstr ""
-"Saisis ton e-mail pour recevoir un lien vers ton portail donateur, où tu pourras gérer tes abonnements, télécharger tes factures et consulter l'historique de tes dons."
+"Saisis ton e-mail pour recevoir un lien vers ton portail donateur, où tu "
+"pourras gérer tes abonnements, télécharger tes factures et consulter "
+"l'historique de tes dons."
 
 #. Body copy in the donation flow. Prioritize clarity, trust, and form usability; preserve amount, currency, email, and status placeholders exactly.
 #: fluxer_marketing/generated:donations.manage.success
 msgctxt "donations.manage.success"
 msgid "If an account exists for that email, you'll receive a management link shortly."
-msgstr "Si un compte existe pour cet e-mail, tu recevras bientôt un lien de gestion."
+msgstr ""
+"Si un compte existe pour cet e-mail, tu recevras bientôt un lien de gestion."
 
 #. Short UI label or heading in the donation flow. Prioritize clarity, trust, and form usability; preserve amount, currency, email, and status placeholders exactly.
 #: fluxer_marketing/generated:donations.manage.title
@@ -1363,7 +1432,8 @@ msgctxt "donations.success.email_notice"
 msgid ""
 "You will receive a confirmation email shortly with details about your donation and a link to your donor portal."
 msgstr ""
-"Tu recevras bientôt un e-mail de confirmation avec les détails de ton don et un lien vers ton portail donateur."
+"Tu recevras bientôt un e-mail de confirmation avec les détails de ton don et "
+"un lien vers ton portail donateur."
 
 #. Body copy in the donation flow. Prioritize clarity, trust, and form usability; preserve amount, currency, email, and status placeholders exactly.
 #: fluxer_marketing/generated:donations.success.message
@@ -1389,19 +1459,24 @@ msgctxt "donations.support_message"
 msgid ""
 "Help us build an independent communication platform. Your donation funds the platform's infrastructure and development."
 msgstr ""
-"Aide-nous à créer une plateforme de communication indépendante. Ton don finance l'infrastructure et le développement de la plateforme."
+"Aide-nous à créer une plateforme de communication indépendante. Ton don "
+"finance l'infrastructure et le développement de la plateforme."
 
 #. Instruction text in the desktop Swish donation modal. The user is on a computer and should scan a QR code with the Swish mobile app. Keep it clear and easy to follow. Preserve placeholders exactly.
 #: fluxer_marketing/generated:donations.swish.instructions
 msgctxt "donations.swish.instructions"
 msgid "Open the {swish} app on your phone and scan this QR code to donate."
-msgstr "Ouvre l'application {swish} sur ton téléphone et scanne ce code QR pour faire un don."
+msgstr ""
+"Ouvre l'application {swish} sur ton téléphone et scanne ce code QR pour "
+"faire un don."
 
 #. Instruction text in the mobile Swish donation modal. The user is already on a phone or tablet, so the flow opens the Swish app directly instead of showing a QR code. Preserve placeholders exactly.
 #: fluxer_marketing/generated:donations.swish.mobile_instructions
 msgctxt "donations.swish.mobile_instructions"
 msgid "Tap the button below to open {swish} on this device and complete your donation."
-msgstr "Touchez le bouton ci-dessous pour ouvrir {swish} sur cet appareil et finaliser votre don."
+msgstr ""
+"Touchez le bouton ci-dessous pour ouvrir {swish} sur cet appareil et "
+"finaliser votre don."
 
 #. Primary button label in the mobile Swish donation modal. Opens the Swish payment app directly. Keep it short. Preserve placeholders exactly.
 #: fluxer_marketing/generated:donations.swish.open_action
@@ -1457,7 +1532,8 @@ msgctxt "donations.why_support"
 msgid ""
 "Help us build a different kind of communication platform: open source, community-funded, and built with care."
 msgstr ""
-"Aidez-nous à créer un autre type de plateforme de communication : open source, financée par la communauté et conçue avec soin."
+"Aidez-nous à créer un autre type de plateforme de communication : open "
+"source, financée par la communauté et conçue avec soin."
 
 #. Button or link label on the download page, download buttons, or install calls to action. Keep platform-download wording short, direct, and action-oriented; preserve placeholders exactly.
 #: fluxer_marketing/generated:download.download
@@ -1471,7 +1547,8 @@ msgctxt "download.download_app_or_open_in_browser"
 msgid ""
 "Download the app or open {product_name} in your browser to start connecting with your communities."
 msgstr ""
-"Télécharge l'application ou ouvre {product_name} dans ton navigateur pour te connecter à tes communautés."
+"Télécharge l'application ou ouvre {product_name} dans ton navigateur pour te "
+"connecter à tes communautés."
 
 #. Button or link label on the download page, download buttons, or install calls to action. Keep platform-download wording short, direct, and action-oriented; preserve placeholders exactly.
 #: fluxer_marketing/generated:download.download_fluxer
@@ -1549,7 +1626,9 @@ msgstr "{product_name}"
 #: fluxer_marketing/generated:footer.fluxer_platform_ab_swedish_limited
 msgctxt "footer.fluxer_platform_ab_swedish_limited"
 msgid "© {product_name} Platform AB (Swedish limited liability company: 559537-3993)"
-msgstr "© {product_name} Platform AB (société suédoise à responsabilité limitée : 559537-3993)"
+msgstr ""
+"© {product_name} Platform AB (société suédoise à responsabilité limitée : "
+"559537-3993)"
 
 #. Body copy in the global marketing footer. Keep navigation labels compact and use legally precise company wording where applicable; preserve placeholders exactly.
 #: fluxer_marketing/generated:footer.help_support_an_independent_communication
@@ -1557,7 +1636,8 @@ msgctxt "footer.help_support_an_independent_communication"
 msgid ""
 "Support an independent communication platform. Your donation funds the platform's infrastructure and development."
 msgstr ""
-"Soutiens une plateforme de communication indépendante. Ton don finance l'infrastructure et le développement de la plateforme."
+"Soutiens une plateforme de communication indépendante. Ton don finance "
+"l'infrastructure et le développement de la plateforme."
 
 #. Compact UI label in the global marketing footer. Keep navigation labels compact and use legally precise company wording where applicable; preserve placeholders exactly.
 #: fluxer_marketing/generated:footer.partners
@@ -1870,7 +1950,8 @@ msgstr "Bêta"
 msgctxt "beta_and_access.early_access.be_first_to_try"
 msgid "Be the first to try new features before they're released to everyone else."
 msgstr ""
-"Sois le premier à essayer les nouvelles fonctionnalités avant qu'elles ne soient disponibles pour tout le monde."
+"Sois le premier à essayer les nouvelles fonctionnalités avant qu'elles ne "
+"soient disponibles pour tout le monde."
 
 #. Short UI label or heading in Fluxer marketing UI. Translate naturally for the target locale and preserve placeholders exactly.
 #: fluxer_marketing/generated:beta_and_access.early_access.label
@@ -1960,14 +2041,17 @@ msgstr "Page introuvable"
 #: fluxer_marketing/generated:navigation.press.download_assets_intro
 msgctxt "navigation.press.download_assets_intro"
 msgid "Download our logos, learn about our brand colors, and get in touch with our press team."
-msgstr "Télécharge nos logos, découvre nos couleurs de marque et contacte notre équipe de presse."
+msgstr ""
+"Télécharge nos logos, découvre nos couleurs de marque et contacte notre "
+"équipe de presse."
 
 #. Press-page heading or summary line for brand asset downloads. Preserve {product_name} exactly; keep wording professional for journalists and partners. Preserve placeholders exactly.
 #: fluxer_marketing/generated:navigation.press.download_fluxer_assets
 msgctxt "navigation.press.download_fluxer_assets"
 msgid "Download {product_name} logos, brand assets, and get in touch with our press team"
 msgstr ""
-"Télécharge les logos {product_name}, les ressources de marque et contacte notre équipe de presse"
+"Télécharge les logos {product_name}, les ressources de marque et contacte "
+"notre équipe de presse"
 
 #. Compact UI label on the press/brand-assets page. Keep wording professional and clear for journalists or partners.
 #: fluxer_marketing/generated:navigation.press.press_and_brand_assets
@@ -1981,7 +2065,8 @@ msgctxt "partner_program.apply.instructions_message"
 msgid ""
 "Send us an email at {email} with the following information to apply for the {product_name} partner program."
 msgstr ""
-"Envoie-nous un e-mail à {email} avec les informations suivantes pour candidater au programme partenaire {product_name}."
+"Envoie-nous un e-mail à {email} avec les informations suivantes pour "
+"candidater au programme partenaire {product_name}."
 
 #. Body copy on the partner program page. Keep the tone professional, creator-friendly, and clear about application expectations.
 #: fluxer_marketing/generated:partner_program.apply.response_time
@@ -1989,7 +2074,8 @@ msgctxt "partner_program.apply.response_time"
 msgid ""
 "We are accepting partner applications for when we begin processing them. We aren't replying to applications right now, but we'll reach out as soon as we are."
 msgstr ""
-"Nous ne répondons pas aux candidatures pour le moment, mais nous vous contacterons dès que ce sera le cas."
+"Nous ne répondons pas aux candidatures pour le moment, mais nous vous "
+"contacterons dès que ce sera le cas."
 
 #. Button or link label on the partner program page. Keep the tone professional, creator-friendly, and clear about application expectations.
 #: fluxer_marketing/generated:partner_program.become_partner.call_to_action
@@ -2020,7 +2106,8 @@ msgstr "Prêt à devenir partenaire ?"
 msgctxt "partner_program.description"
 msgid "Exclusive perks and benefits for content creators and large community owners."
 msgstr ""
-"Avantages exclusifs pour les créateurs de contenu et les propriétaires de grandes communautés."
+"Avantages exclusifs pour les créateurs de contenu et les propriétaires de "
+"grandes communautés."
 
 #. Short UI label or heading on the partner program page. Keep the tone professional, creator-friendly, and clear about application expectations.
 #: fluxer_marketing/generated:partner_program.label
@@ -2033,7 +2120,8 @@ msgstr "Partenaires"
 msgctxt "partner_program.perks.creator_monetization.description"
 msgid "Early access to creator monetization features with lower platform fees than non-partners."
 msgstr ""
-"Accès anticipé aux fonctionnalités de monétisation pour les créateurs avec des frais de plateforme moins élevés que pour les non-partenaires."
+"Accès anticipé aux fonctionnalités de monétisation pour les créateurs avec "
+"des frais de plateforme moins élevés que pour les non-partenaires."
 
 #. Short UI label or heading on the partner program perks section. Keep benefits concrete and appealing to creators/community owners; preserve placeholders exactly.
 #: fluxer_marketing/generated:partner_program.perks.creator_monetization.label
@@ -2045,7 +2133,8 @@ msgstr "Monétisation des créateurs"
 #: fluxer_marketing/generated:partner_program.perks.custom_vanity_url.description
 msgctxt "partner_program.perks.custom_vanity_url.description"
 msgid "Get an exclusive custom vanity URL like fluxer.gg/yourcommunity."
-msgstr "Obtiens une URL exclusive et personnalisée comme fluxer.gg/yourcommunity."
+msgstr ""
+"Obtiens une URL exclusive et personnalisée comme fluxer.gg/yourcommunity."
 
 #. Short UI label or heading on the partner program perks section. Keep benefits concrete and appealing to creators/community owners; preserve placeholders exactly.
 #: fluxer_marketing/generated:partner_program.perks.custom_vanity_url.label
@@ -2058,7 +2147,8 @@ msgstr "URL personnalisée"
 msgctxt "partner_program.perks.direct_team_access.description"
 msgid "Join the exclusive partners community with direct access to the {product_name} team."
 msgstr ""
-"Rejoins la communauté exclusive des partenaires avec un accès direct à l'équipe {product_name}."
+"Rejoins la communauté exclusive des partenaires avec un accès direct à "
+"l'équipe {product_name}."
 
 #. Short UI label or heading on the partner program perks section. Keep benefits concrete and appealing to creators/community owners; preserve placeholders exactly.
 #: fluxer_marketing/generated:partner_program.perks.direct_team_access.label
@@ -2071,13 +2161,16 @@ msgstr "Accès direct à l'équipe"
 msgctxt "partner_program.perks.discovery_visibility"
 msgid "Get increased visibility by being featured in community discovery."
 msgstr ""
-"Obtiens une visibilité accrue en étant mis en avant dans la section de découverte des communautés."
+"Obtiens une visibilité accrue en étant mis en avant dans la section de "
+"découverte des communautés."
 
 #. Body copy on the partner program perks section. Keep benefits concrete and appealing to creators/community owners; preserve placeholders exactly.
 #: fluxer_marketing/generated:partner_program.perks.exclusive_merch.description
 msgctxt "partner_program.perks.exclusive_merch.description"
 msgid "Get exclusive {product_name} partner-only merchandise and swag."
-msgstr "Obtiens des produits dérivés et du swag exclusifs réservés aux partenaires {product_name}."
+msgstr ""
+"Obtiens des produits dérivés et du swag exclusifs réservés aux partenaires "
+"{product_name}."
 
 #. Short UI label or heading on the partner program perks section. Keep benefits concrete and appealing to creators/community owners; preserve placeholders exactly.
 #: fluxer_marketing/generated:partner_program.perks.exclusive_merch.label
@@ -2090,7 +2183,8 @@ msgstr "Merch exclusive"
 msgctxt "partner_program.perks.free_plutonium.description"
 msgid "Get free {premium_tier_name} for your account to enjoy all premium features."
 msgstr ""
-"Obtiens {premium_tier_name} gratuite pour ton compte afin de profiter de toutes les fonctionnalités premium."
+"Obtiens {premium_tier_name} gratuite pour ton compte afin de profiter de "
+"toutes les fonctionnalités premium."
 
 #. Short UI label or heading on the partner program perks section. Keep benefits concrete and appealing to creators/community owners; preserve placeholders exactly.
 #: fluxer_marketing/generated:partner_program.perks.free_plutonium.label
@@ -2120,7 +2214,8 @@ msgstr "Limites augmentées"
 #: fluxer_marketing/generated:partner_program.perks.partner_badge.description
 msgctxt "partner_program.perks.partner_badge.description"
 msgid "Display an exclusive partner badge on your profile to stand out."
-msgstr "Affiche un badge de partenaire exclusif sur ton profil pour te démarquer."
+msgstr ""
+"Affiche un badge de partenaire exclusif sur ton profil pour te démarquer."
 
 #. Short UI label or heading on the partner program perks section. Keep benefits concrete and appealing to creators/community owners; preserve placeholders exactly.
 #: fluxer_marketing/generated:partner_program.perks.partner_badge.label
@@ -2138,7 +2233,9 @@ msgstr "Voir les avantages"
 #: fluxer_marketing/generated:partner_program.perks.vip_voice_servers.description
 msgctxt "partner_program.perks.vip_voice_servers.description"
 msgid "Access to VIP voice servers reserved exclusively for partnered communities."
-msgstr "Accès aux salons vocaux VIP réservés exclusivement aux communautés partenaires."
+msgstr ""
+"Accès aux salons vocaux VIP réservés exclusivement aux communautés "
+"partenaires."
 
 #. Short UI label or heading on the partner program perks section. Keep benefits concrete and appealing to creators/community owners; preserve placeholders exactly.
 #: fluxer_marketing/generated:partner_program.perks.vip_voice_servers.label
@@ -2156,7 +2253,9 @@ msgstr "Brève description de ton public et de ce que tu fais"
 #: fluxer_marketing/generated:partner_program.requirements.links_to_content
 msgctxt "partner_program.requirements.links_to_content"
 msgid "Links to your content or community ({youtube}, {twitch}, {discord}, etc.)"
-msgstr "Liens vers ton contenu ou ta communauté ({youtube}, {twitch}, {discord}, etc.)"
+msgstr ""
+"Liens vers ton contenu ou ta communauté ({youtube}, {twitch}, {discord}, "
+"etc.)"
 
 #. Short UI label or heading listing partner application requirements. Keep it specific and easy to scan.
 #: fluxer_marketing/generated:partner_program.requirements.name_and_username
@@ -2176,7 +2275,8 @@ msgctxt "partner_program.who_its_for"
 msgid ""
 "For creators and community owners: free {premium_tier_name}, a partner badge, a custom vanity URL, and more."
 msgstr ""
-"Pour les créateurs et propriétaires de communautés : {premium_tier_name} gratuit, un badge partenaire, une URL vanity personnalisée, et plus encore."
+"Pour les créateurs et propriétaires de communautés : {premium_tier_name} "
+"gratuit, un badge partenaire, une URL vanity personnalisée, et plus encore."
 
 #. Body copy in platform availability and download support copy. Keep wording clear about desktop, web, and mobile status.
 #: fluxer_marketing/generated:platform_support.desktop.available_on_desktop_and_web
@@ -2189,7 +2289,8 @@ msgstr "Disponible sur ordinateur et sur le web"
 msgctxt "platform_support.desktop.download_desktop_intro"
 msgid "Download {product_name} for {windows}, {macos}, and {linux}. Mobile apps are underway."
 msgstr ""
-"Télécharge {product_name} pour {windows}, {macos} et {linux}. Les applications mobiles sont en cours de développement."
+"Télécharge {product_name} pour {windows}, {macos} et {linux}. Les "
+"applications mobiles sont en cours de développement."
 
 #. Alt text for a desktop product screenshot. Preserve {product_name} exactly; describe the image as the desktop interface, not as a download action. Preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.desktop.interface_label
@@ -2221,19 +2322,24 @@ msgctxt "platform_support.desktop.windows_game_capture_warning.body"
 msgid ""
 "The {game_capture} build is not code-signed yet, so {microsoft_defender} may quarantine it until {microsoft} approves it. The standard {windows} build is unaffected."
 msgstr ""
-"La version {game_capture} n’est pas encore signée numériquement, par conséquent {microsoft_defender} pourrait la mettre en quarantaine jusqu’à ce que {microsoft} l’approuve. La version standard de {windows} n’est pas affectée."
+"La version {game_capture} n’est pas encore signée numériquement, par "
+"conséquent {microsoft_defender} pourrait la mettre en quarantaine jusqu’à ce "
+"que {microsoft} l’approuve. La version standard de {windows} n’est pas "
+"affectée."
 
 #. Body copy for mobile/PWA install guidance on the download page. Keep instructions clear, device-appropriate, and concise; preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.install_as_app.done_desktop
 msgctxt "platform_support.mobile.install_as_app.done_desktop"
 msgid "Done! You can now open {product_name} as if it were a regular program."
-msgstr "Terminé. Tu peux maintenant ouvrir {product_name} comme un programme normal."
+msgstr ""
+"Terminé. Tu peux maintenant ouvrir {product_name} comme un programme normal."
 
 #. Body copy for mobile/PWA install guidance on the download page. Keep instructions clear, device-appropriate, and concise; preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.install_as_app.done_mobile
 msgctxt "platform_support.mobile.install_as_app.done_mobile"
 msgid "Done! You can now open {product_name} from your home screen."
-msgstr "Terminé. Tu peux maintenant ouvrir {product_name} depuis ton écran d'accueil."
+msgstr ""
+"Terminé. Tu peux maintenant ouvrir {product_name} depuis ton écran d'accueil."
 
 #. Compact UI label for mobile/PWA install guidance on the download page. Keep instructions clear, device-appropriate, and concise; preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.install_as_app.guides.in_chrome
@@ -2282,7 +2388,8 @@ msgstr "Appuie sur \"Installer l'application\""
 msgctxt "platform_support.mobile.install_as_app.guides.steps.press_install_button_address_bar"
 msgid "Press the install button (downward-pointing arrow on monitor) in the address bar"
 msgstr ""
-"Appuie sur le bouton d'installation (flèche pointant vers le bas sur l'écran) dans la barre d'adresse"
+"Appuie sur le bouton d'installation (flèche pointant vers le bas sur "
+"l'écran) dans la barre d'adresse"
 
 #. Body copy for mobile/PWA install guidance on the download page. Keep instructions clear, device-appropriate, and concise; preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.install_as_app.guides.steps.press_install_in_popup
@@ -2300,7 +2407,8 @@ msgstr "Appuie sur le bouton \" Plus \" (⋮) dans le coin supérieur droit"
 #: fluxer_marketing/generated:platform_support.mobile.install_as_app.guides.steps.press_share_button
 msgctxt "platform_support.mobile.install_as_app.guides.steps.press_share_button"
 msgid "Press the share button (rectangle with upward-pointing arrow)"
-msgstr "Appuie sur le bouton de partage (rectangle avec flèche pointant vers le haut)"
+msgstr ""
+"Appuie sur le bouton de partage (rectangle avec flèche pointant vers le haut)"
 
 #. Compact UI label for mobile/PWA install guidance on the download page. Keep instructions clear, device-appropriate, and concise; preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.install_as_app.install_fluxer_as_app
@@ -2456,7 +2564,8 @@ msgstr "{product_name} en déplacement"
 #: fluxer_marketing/generated:platform_support.mobile.on_mobile.intro
 msgctxt "platform_support.mobile.on_mobile.intro"
 msgid "Three ways to use {product_name} on your phone right now."
-msgstr "Utilisez {product_name} sur votre téléphone de trois manières dès maintenant."
+msgstr ""
+"Utilisez {product_name} sur votre téléphone de trois manières dès maintenant."
 
 #. Card title for the mobile web app (PWA) option on the download page. Keep it short.
 #: fluxer_marketing/generated:platform_support.mobile.web_app.title
@@ -2470,7 +2579,10 @@ msgctxt "platform_support.mobile.web_app.body"
 msgid ""
 "{product_name} runs in any mobile browser and installs to your home screen like a Progressive Web App. It is the most complete way to use {product_name} on a phone today."
 msgstr ""
-"{product_name} fonctionne dans n’importe quel navigateur mobile et s’installe sur votre écran d’accueil comme une Progressive Web App. C’est la façon la plus complète d’utiliser {product_name} sur un téléphone aujourd’hui."
+"{product_name} fonctionne dans n’importe quel navigateur mobile et "
+"s’installe sur votre écran d’accueil comme une Progressive Web App. C’est la "
+"façon la plus complète d’utiliser {product_name} sur un téléphone "
+"aujourd’hui."
 
 #. Card title for the iOS app option on the download page. Keep the platform name conventional and short. Preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.ios.title
@@ -2484,7 +2596,10 @@ msgctxt "platform_support.mobile.ios.body"
 msgid ""
 "As of 15 June 2026, the {ios} app is in a limited {testflight} beta with a small group of {premium_tier_name} subscribers. {testflight} slots are limited, so the best way in for most people is to wait for the public release."
 msgstr ""
-"Au 15 juin 2026, l’application {ios} est en version bêta limitée {testflight} avec un petit groupe d’abonnés {premium_tier_name}. Les places {testflight} sont limitées, la meilleure façon d’y accéder pour la plupart des gens est d’attendre la sortie publique."
+"Au 15 juin 2026, l’application {ios} est en version bêta limitée "
+"{testflight} avec un petit groupe d’abonnés {premium_tier_name}. Les places "
+"{testflight} sont limitées, la meilleure façon d’y accéder pour la plupart "
+"des gens est d’attendre la sortie publique."
 
 #. Card title for the Android app option on the download page. Keep the platform name conventional and short. Preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.android.title
@@ -2496,7 +2611,9 @@ msgstr "Application {android}"
 #: fluxer_marketing/generated:platform_support.mobile.android.body
 msgctxt "platform_support.mobile.android.body"
 msgid "Install the {android} APK straight from our open source repository on {github}."
-msgstr "Installez l’APK {android} directement depuis notre dépôt open source sur {github}."
+msgstr ""
+"Installez l’APK {android} directement depuis notre dépôt open source sur "
+"{github}."
 
 #. Button or link label on the Android app card that opens the GitHub repository where the APK is published. Keep APK as a proper name; keep it short.
 #: fluxer_marketing/generated:platform_support.mobile.android.cta
@@ -2510,7 +2627,10 @@ msgctxt "platform_support.mobile.alpha_disclaimer"
 msgid ""
 "The {ios} and {android} apps are early alphas. They may be missing features you expect or still have bugs, and we are working hard to fix that. The web app is not an alpha, and it stays the most complete mobile option for now."
 msgstr ""
-"Les applications {ios} et {android} sont des versions alpha précoces. Il peut leur manquer des fonctionnalités attendues ou contenir des bugs, et nous travaillons dur pour y remédier. L’application web n’est pas une alpha et reste l’option mobile la plus complète pour le moment."
+"Les applications {ios} et {android} sont des versions alpha précoces. Il "
+"peut leur manquer des fonctionnalités attendues ou contenir des bugs, et "
+"nous travaillons dur pour y remédier. L’application web n’est pas une alpha "
+"et reste l’option mobile la plus complète pour le moment."
 
 #. Short UI label or heading in the press kit and brand asset download area. Keep terminology professional for brand/logo usage guidance; preserve placeholders exactly.
 #: fluxer_marketing/generated:press_branding.assets.brand_colors_heading
@@ -2553,7 +2673,8 @@ msgstr "Logo blanc"
 msgctxt "press_branding.assets.palette_description"
 msgid "Our carefully selected color palette that represents the {product_name} brand."
 msgstr ""
-"Notre palette de couleurs soigneusement sélectionnée qui représente la marque {product_name}."
+"Notre palette de couleurs soigneusement sélectionnée qui représente la "
+"marque {product_name}."
 
 #. Compact UI label in the press kit and brand asset download area. Keep terminology professional for brand/logo usage guidance; preserve placeholders exactly.
 #: fluxer_marketing/generated:press_branding.assets.premium_quality
@@ -2566,7 +2687,8 @@ msgstr "Qualité premium"
 msgctxt "press_branding.assets.primary_brand_color_description"
 msgid "Our primary brand color. Use this for key brand elements and accents."
 msgstr ""
-"Notre couleur de marque principale. Utilise-la pour les éléments clés et les accents de la marque."
+"Notre couleur de marque principale. Utilise-la pour les éléments clés et les "
+"accents de la marque."
 
 #. Compact UI label in the press kit and brand asset download area. Keep terminology professional for brand/logo usage guidance; preserve placeholders exactly.
 #: fluxer_marketing/generated:press_branding.assets.symbol_variants.black_symbol
@@ -2615,7 +2737,8 @@ msgstr "Pour les fonds clairs"
 msgctxt "press_branding.assets.usage_guidance.full_logo_description"
 msgid "Our full logo including the wordmark. Use this as the primary representation of our brand."
 msgstr ""
-"Notre logo complet avec le nom de la marque. Utilise-le comme représentation principale de notre marque."
+"Notre logo complet avec le nom de la marque. Utilise-le comme représentation "
+"principale de notre marque."
 
 #. Body copy in the press kit and brand asset download area. Keep terminology professional for brand/logo usage guidance; preserve placeholders exactly.
 #: fluxer_marketing/generated:press_branding.assets.usage_guidance.light_surface_guidance
@@ -2629,7 +2752,8 @@ msgctxt "press_branding.assets.usage_guidance.symbol_description"
 msgid ""
 "Our standalone symbol. Use this only when our brand is clearly visible or well-established elsewhere in the context."
 msgstr ""
-"Notre symbole seul. Utilise-le uniquement quand notre marque est clairement visible ou bien établie ailleurs dans le contexte."
+"Notre symbole seul. Utilise-le uniquement quand notre marque est clairement "
+"visible ou bien établie ailleurs dans le contexte."
 
 #. Brand color name in the press kit. Keep the color label recognizable and do not over-translate proper names unless natural in the locale.
 #: fluxer_marketing/generated:press_branding.colors.black
@@ -2733,21 +2857,25 @@ msgctxt "pricing_and_tiers.plutonium.benefits_note_official_instance_only"
 msgid ""
 "Note: {premium_tier_name} and {visionary_tier_name} benefits only apply to the official {product_name}.app instance, not third-party or self-hosted instances."
 msgstr ""
-"Remarque : les avantages {premium_tier_name} et {visionary_tier_name} s'appliquent uniquement à l'instance officielle {product_name}.app, pas aux instances tierces ou auto-hébergées."
+"Remarque : les avantages {premium_tier_name} et {visionary_tier_name} "
+"s'appliquent uniquement à l'instance officielle {product_name}.app, pas aux "
+"instances tierces ou auto-hébergées."
 
 #. Body copy describing the Plutonium paid tier. Keep the tier name unchanged unless the locale normally transliterates product tier names; preserve placeholders exactly.
 #: fluxer_marketing/generated:pricing_and_tiers.plutonium.feature_highlights
 msgctxt "pricing_and_tiers.plutonium.feature_highlights"
 msgid "500 MB uploads, 4,000-character messages, 300 bookmarks, 50 emoji packs, and much more."
 msgstr ""
-"Envoi de 500 Mo ; messages de 4 000 caractères ; 300 favoris ; 50 packs d'emoji ; et bien plus."
+"Envoi de 500 Mo ; messages de 4 000 caractères ; 300 favoris ; 50 packs "
+"d'emoji ; et bien plus."
 
 #. Body copy describing the Plutonium paid tier. Keep the tier name unchanged unless the locale normally transliterates product tier names; preserve placeholders exactly.
 #: fluxer_marketing/generated:pricing_and_tiers.plutonium.features.choose_custom_4_digit_tag
 msgctxt "pricing_and_tiers.plutonium.features.choose_custom_4_digit_tag"
 msgid "Choose any available 4-digit tag from #0001 to #9999 to make your username truly unique."
 msgstr ""
-"Choisis n'importe quel tag à 4 chiffres disponible, de #0001 à #9999, pour rendre ton nom d'utilisateur vraiment unique."
+"Choisis n'importe quel tag à 4 chiffres disponible, de #0001 à #9999, pour "
+"rendre ton nom d'utilisateur vraiment unique."
 
 #. Short UI label or heading describing the Plutonium paid tier. Keep the tier name unchanged unless the locale normally transliterates product tier names; preserve placeholders exactly.
 #: fluxer_marketing/generated:pricing_and_tiers.plutonium.features.custom_4_digit_username_tag
@@ -2832,7 +2960,8 @@ msgstr "Obtiens la formule {premium_tier_name}"
 msgctxt "pricing_and_tiers.plutonium.higher_limits_and_early_access"
 msgid "Higher limits, exclusive features, and early access to new updates"
 msgstr ""
-"Limites plus élevées ; fonctionnalités exclusives ; et accès anticipé aux nouvelles mises à jour"
+"Limites plus élevées ; fonctionnalités exclusives ; et accès anticipé aux "
+"nouvelles mises à jour"
 
 #. Compact UI label describing the Plutonium paid tier. Keep the tier name unchanged unless the locale normally transliterates product tier names; preserve placeholders exactly.
 #: fluxer_marketing/generated:pricing_and_tiers.plutonium.higher_limits_everywhere
@@ -2844,7 +2973,8 @@ msgstr "Des limites plus élevées partout"
 #: fluxer_marketing/generated:pricing_and_tiers.plutonium.show_off_status_badge
 msgctxt "pricing_and_tiers.plutonium.show_off_status_badge"
 msgid "Show off your {premium_tier_name} status with an exclusive badge on your profile."
-msgstr "Montre ton statut {premium_tier_name} avec un badge exclusif sur ton profil."
+msgstr ""
+"Montre ton statut {premium_tier_name} avec un badge exclusif sur ton profil."
 
 #. Body copy describing the Plutonium paid tier. Keep the tier name unchanged unless the locale normally transliterates product tier names; preserve placeholders exactly.
 #: fluxer_marketing/generated:pricing_and_tiers.plutonium.standard_pricing_available
@@ -2852,7 +2982,8 @@ msgctxt "pricing_and_tiers.plutonium.standard_pricing_available"
 msgid ""
 "Prefer paying in standard {currency}? Also available at checkout for {monthly_price} or {yearly_price}."
 msgstr ""
-"Tu préfères payer en {currency} standard ? Également disponible au paiement pour {monthly_price} ou {yearly_price}."
+"Tu préfères payer en {currency} standard ? Également disponible au paiement "
+"pour {monthly_price} ou {yearly_price}."
 
 #. Short UI label or heading describing the Plutonium paid tier. Keep the tier name unchanged unless the locale normally transliterates product tier names; preserve placeholders exactly.
 #: fluxer_marketing/generated:pricing_and_tiers.plutonium.tier_name
@@ -2871,7 +3002,8 @@ msgstr "Achat unique"
 msgctxt "product_positioning.free_and_open_source"
 msgid "{product_name} is free and open source. Anyone can self-host for free."
 msgstr ""
-"{product_name} est gratuit et open source. N'importe qui peut l'auto-héberger gratuitement."
+"{product_name} est gratuit et open source. N'importe qui peut l'auto-"
+"héberger gratuitement."
 
 #. Primary product-positioning body copy used in page metadata and hero sections. Preserve {product_name} exactly; keep the free/open-source, instant messaging, VoIP, and community meanings clear. Preserve placeholders exactly.
 #: fluxer_marketing/generated:product_positioning.intro
@@ -2879,7 +3011,9 @@ msgctxt "product_positioning.intro"
 msgid ""
 "{product_name} is a free and open source instant messaging and VoIP chat app built for friends, groups, and communities."
 msgstr ""
-"{product_name} est une application de chat avec messagerie instantanée et VoIP, gratuite et open source, conçue pour les amis, les groupes et les communautés."
+"{product_name} est une application de chat avec messagerie instantanée et "
+"VoIP, gratuite et open source, conçue pour les amis, les groupes et les "
+"communautés."
 
 #. Button or link label explaining Fluxer open-source licensing. Keep legal/license tokens such as AGPLv3 unchanged.
 #: fluxer_marketing/generated:product_positioning.open_source.fully_open_source_agplv3
@@ -2935,14 +3069,20 @@ msgctxt "product_positioning.self_hosting.operator_pass.donating_with_perks_smal
 msgid ""
 "Think of the optional {operator_pass} like donating with perks: you help keep {product_name} going and get the {operators} community, a smaller place where self-hosters and the {product_name} team can help when you get stuck, hear your ideas, and discuss feedback before it gets buried on {github}."
 msgstr ""
-"Voyez l’{operator_pass} facultatif comme un don avec des avantages : vous aidez {product_name} à continuer et vous accédez à l’{operators} community, un espace plus restreint où d’autres personnes qui auto-hébergent {product_name} et l’équipe {product_name} peuvent vous aider quand vous êtes bloqué, écouter vos idées et discuter des retours avant qu’ils ne soient noyés sur {github}."
+"Voyez l’{operator_pass} facultatif comme un don avec des avantages : vous "
+"aidez {product_name} à continuer et vous accédez à l’{operators} community, "
+"un espace plus restreint où d’autres personnes qui auto-hébergent "
+"{product_name} et l’équipe {product_name} peuvent vous aider quand vous êtes "
+"bloqué, écouter vos idées et discuter des retours avant qu’ils ne soient "
+"noyés sur {github}."
 
 #. Body copy explaining self-hosting and Operator Pass expectations. Keep technical wording accurate and preserve product-name placeholders exactly.
 #: fluxer_marketing/generated:product_positioning.self_hosting.run_backend_on_your_hardware
 msgctxt "product_positioning.self_hosting.run_backend_on_your_hardware"
 msgid "Run the {product_name} backend on your own hardware and connect with our apps."
 msgstr ""
-"Fais fonctionner le backend {product_name} sur ton propre matériel et connecte-toi à nos applications."
+"Fais fonctionner le backend {product_name} sur ton propre matériel et "
+"connecte-toi à nos applications."
 
 #. Compact UI label explaining self-hosting and Operator Pass expectations. Keep technical wording accurate and preserve product-name placeholders exactly.
 #: fluxer_marketing/generated:product_positioning.self_hosting.switch_between_instances
@@ -2962,7 +3102,9 @@ msgctxt "security.responsible_disclosure_note"
 msgid ""
 "We appreciate responsible disclosure via our security bug bounty page. We offer {premium_tier_name} codes and {bug_hunter} badges based on severity."
 msgstr ""
-"Nous apprécions les divulgations responsables via notre page de prime aux insectes de sécurité. Nous offrons des codes {premium_tier_name} et des badges {bug_hunter} en fonction de la gravité."
+"Nous apprécions les divulgations responsables via notre page de prime aux "
+"insectes de sécurité. Nous offrons des codes {premium_tier_name} et des "
+"badges {bug_hunter} en fonction de la gravité."
 
 #. Compact UI label in security, bug bounty, or responsible disclosure sections. Keep wording precise, calm, and trustworthy; preserve placeholders exactly.
 #: fluxer_marketing/generated:security.security_bug_bounty
@@ -2976,7 +3118,8 @@ msgctxt "security.testers_access_from_reports"
 msgid ""
 "Found a bug? Check out our bug report guide to learn how to file clear, high-quality reports."
 msgstr ""
-"Tu as trouvé un bug ? Consulte notre guide de rapport de bugs pour apprendre à rédiger des rapports clairs et de haute qualité."
+"Tu as trouvé un bug ? Consulte notre guide de rapport de bugs pour apprendre "
+"à rédiger des rapports clairs et de haute qualité."
 
 #. Short UI label or heading shared across marketing pages. Keep it broadly reusable, concise, and consistent with the Fluxer brand voice.
 #: fluxer_marketing/generated:general.coming_soon.label
@@ -3049,7 +3192,8 @@ msgstr "Fonctionnalité"
 msgctxt "misc_labels.get_updates"
 msgid "Get updates, see upcoming features, discuss suggestions, and chat with the team."
 msgstr ""
-"Reçois les mises à jour, découvre les fonctionnalités à venir, partage tes suggestions et chatte avec l'équipe."
+"Reçois les mises à jour, découvre les fonctionnalités à venir, partage tes "
+"suggestions et chatte avec l'équipe."
 
 #. Button/link label for joining the official Fluxer HQ community. Preserve {product_name} exactly; translate as a short standalone call to action. Preserve placeholders exactly.
 #: fluxer_marketing/generated:misc_labels.join_fluxer_hq
@@ -3164,7 +3308,8 @@ msgstr "Flux RSS"
 msgctxt "social_and_feeds.stay_updated_cta"
 msgid "Stay updated on news, service status, and what's happening. You can also subscribe to our"
 msgstr ""
-"Reste informé des actualités, de l'état du service et des dernières nouveautés. Tu peux aussi t'abonner à notre"
+"Reste informé des actualités, de l'état du service et des dernières "
+"nouveautés. Tu peux aussi t'abonner à notre"
 
 #. Section heading above the world map of voice regions. Plain, sentence case.
 #: fluxer_marketing/generated:voice_regions.map_heading
@@ -3178,7 +3323,8 @@ msgctxt "voice_regions.map_intro"
 msgid ""
 "Sixteen voice regions across six continents. Voice and video calls connect through the region closest to you."
 msgstr ""
-"Seize régions vocales sur six continents. Les appels vocaux et vidéo se connectent via la région la plus proche de chez vous."
+"Seize régions vocales sur six continents. Les appels vocaux et vidéo se "
+"connectent via la région la plus proche de chez vous."
 
 #. Accessible legend / alt-style sentence next to the map. Sentence case, short. Preserve placeholders exactly.
 #: fluxer_marketing/generated:voice_regions.map_legend
@@ -3198,4 +3344,5 @@ msgctxt "voice_regions.languages_intro"
 msgid ""
 "{product_name} is available in over thirty languages. To help translate {product_name} into your native language, write to {email}."
 msgstr ""
-"{product_name} est disponible dans plus de trente langues. Pour vous aider à traduire {product_name} dans votre langue maternelle, écrivez à {email}."
+"{product_name} est disponible dans plus de trente langues. Pour vous aider à "
+"traduire {product_name} dans votre langue maternelle, écrivez à {email}."

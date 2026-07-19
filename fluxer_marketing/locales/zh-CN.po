@@ -5,12 +5,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fluxer-marketing\n"
 "POT-Creation-Date: 2026-06-16 00:00+0000\n"
-"PO-Revision-Date: 2026-06-16 00:00+0000\n"
+"PO-Revision-Date: 2026-07-19 13:56+0000\n"
 "Language: zh-CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://weblate.fluxer.tools/"
+"projects/fluxer/marketing/zh_Hans/>\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #. Compact UI label used in the home-page communities/moderation feature card. Keep it concise, natural, and consistent with product terminology; preserve placeholders exactly.
 #: fluxer_marketing/generated:app.communities.community_support
@@ -389,7 +393,9 @@ msgstr "我是如何打造 {product_name} 这个类 {discord} 聊天应用的"
 msgctxt "blog.post.mobile_clients_and_fluxer_v2.description"
 msgid ""
 "{product_name} v2 is out, mobile clients are open source, self-hosting is improving, and public development is moving back to GitHub."
-msgstr "{product_name} v2 已发布，移动客户端已开源，自托管功能得到改进，公开开发将迁回 GitHub。"
+msgstr ""
+"{product_name} v2 已发布，移动客户端已开源，自托管功能得到改进，公开开发将迁"
+"回 GitHub。"
 
 #. Blog article title shown in cards, article pages, metadata, and feeds. Keep Fluxer as a product name and v2 as the release name. Preserve placeholders exactly.
 #: fluxer_marketing/generated:blog.post.mobile_clients_and_fluxer_v2.title
@@ -402,7 +408,9 @@ msgstr "移动客户端和 {product_name} v2"
 msgctxt "blog.post.roadmap_2026.description"
 msgid ""
 "The current 2026 roadmap for {product_name}: canary, mobile, self-hosting, federation, voice and video, and the backend reliability work behind it."
-msgstr "{product_name} 当前的 2026 年路线图：canary、移动端、自托管、联邦、语音和视频，以及背后的后端可靠性工作。"
+msgstr ""
+"{product_name} 当前的 2026 年路线图：canary、移动端、自托管、联邦、语音和视频"
+"，以及背后的后端可靠性工作。"
 
 #. Blog article title shown in cards, article pages, metadata, and feeds. Refers to Fluxer's 2026 product roadmap.
 #: fluxer_marketing/generated:blog.post.roadmap_2026.title
@@ -716,7 +724,9 @@ msgctxt "company_and_resources.source_and_contribution.translation.llm_translati
 msgid ""
 "All translations are currently LLM-generated with minimal human revision. We'd love to get real people to help us localize {product_name} into your language. To do so, email {l10n_email} and we'll be happy to accept your contributions."
 msgstr ""
-"所有翻译目前均由大型语言模型生成，并经过少量人工修订。我们诚挚邀请你协助我们将 {product_name} 本地化为你的语言。请发送邮件至 {l10n_email}，我们欢迎你的贡献。"
+"所有翻译目前均由大型语言模型生成，并经过少量人工修订。我们诚挚邀请你协助我们"
+"将 {product_name} 本地化为你的语言。请发送邮件至 {l10n_email}，我们欢迎你的贡"
+"献。"
 
 #. Department or policy category label on content pages. Translate as a compact noun phrase, not as a sentence.
 #: fluxer_marketing/generated:content.labels.community
@@ -771,7 +781,9 @@ msgstr "信任与安全"
 msgctxt "content.jobs.community_lead.description"
 msgid ""
 "Look after our public voice and the communities around {product_name}. Talk with people, share what's new, and bring what you hear back to the team."
-msgstr "负责 {product_name} 的对外声音和周边社区。与用户交流、分享新动态，并把听到的反馈带回团队。"
+msgstr ""
+"负责 {product_name} 的对外声音和周边社区。与用户交流、分享新动态，并把听到的"
+"反馈带回团队。"
 
 #. Job title shown on careers pages. Translate as a professional role title.
 #: fluxer_marketing/generated:content.jobs.community_lead.title
@@ -784,7 +796,9 @@ msgstr "社区负责人"
 msgctxt "content.jobs.platform_engineer.description"
 msgid ""
 "Look after the systems {product_name} runs on: pipelines, databases, dashboards, on-call, and the quiet machinery that keeps everything humming."
-msgstr "维护 {product_name} 运行所依赖的系统：流水线、数据库、仪表板、值班，以及背后默默运转的基础设施。"
+msgstr ""
+"维护 {product_name} 运行所依赖的系统：流水线、数据库、仪表板、值班，以及背后"
+"默默运转的基础设施。"
 
 #. Job title shown on careers pages. Translate as a professional infrastructure/platform engineering role title.
 #: fluxer_marketing/generated:content.jobs.platform_engineer.title
@@ -810,7 +824,9 @@ msgstr "隐私与法律顾问"
 msgctxt "content.jobs.product_engineer.description"
 msgid ""
 "Build the bits people open {product_name} to use, top to bottom: web, mobile, desktop, and the services behind them."
-msgstr "构建用户打开 {product_name} 后真正使用的部分，从 Web、移动端、桌面端到背后的服务。"
+msgstr ""
+"构建用户打开 {product_name} 后真正使用的部分，从 Web、移动端、桌面端到背后的"
+"服务。"
 
 #. Job title shown on careers pages. Translate as a professional product engineering role title.
 #: fluxer_marketing/generated:content.jobs.product_engineer.title
@@ -823,7 +839,9 @@ msgstr "产品工程师"
 msgctxt "content.jobs.support_specialist.description"
 msgid ""
 "Be the friendly first reply when someone hits a snag. Help users sort things out and bring the rough edges back to the team to fix."
-msgstr "在用户遇到问题时做友善的第一回复。帮助用户解决问题，并把体验中的粗糙之处带回团队修复。"
+msgstr ""
+"在用户遇到问题时做友善的第一回复。帮助用户解决问题，并把体验中的粗糙之处带回"
+"团队修复。"
 
 #. Job title shown on careers pages. Translate as a professional customer/user support role title.
 #: fluxer_marketing/generated:content.jobs.support_specialist.title
@@ -836,7 +854,9 @@ msgstr "支持专员"
 msgctxt "content.jobs.trust_and_safety_specialist.description"
 msgid ""
 "Work through abuse reports, make fair calls, and help shape the policies and tooling that keep {product_name} somewhere people want to be."
-msgstr "处理滥用举报，做出公平判断，并帮助塑造让 {product_name} 保持友善的政策和工具。"
+msgstr ""
+"处理滥用举报，做出公平判断，并帮助塑造让 {product_name} 保持友善的政策和工具"
+"。"
 
 #. Job title shown on careers pages. Translate as a professional moderation/safety operations role title.
 #: fluxer_marketing/generated:content.jobs.trust_and_safety_specialist.title
@@ -887,7 +907,9 @@ msgstr "社区准则"
 msgctxt "content.policies.privacy.description"
 msgid ""
 "How {product_name} handles personal data, what we do not do with it, and the controls and rights you have."
-msgstr "说明 {product_name} 如何处理个人数据、不会对数据做什么，以及你拥有的控制权和权利。"
+msgstr ""
+"说明 {product_name} 如何处理个人数据、不会对数据做什么，以及你拥有的控制权和"
+"权利。"
 
 #. Policy page title. Translate as a formal privacy policy.
 #: fluxer_marketing/generated:content.policies.privacy.title
@@ -979,7 +1001,9 @@ msgstr "2026年3月 {premium_tier_name} 促销活动"
 msgctxt "content.help.article.plutonium_promotion_march_2026.description"
 msgid ""
 "A limited-time promotion offering a free 7-day {premium_tier_name} trial for new users and gift codes for existing {premium_tier_name} subscribers."
-msgstr "为新用户提供 7 天免费 {premium_tier_name} 试用，并为现有 {premium_tier_name} 订阅者提供礼品码的限时促销活动。"
+msgstr ""
+"为新用户提供 7 天免费 {premium_tier_name} 试用，并为现有 {premium_tier_name} "
+"订阅者提供礼品码的限时促销活动。"
 
 #. Help article title asking about the retired Fluxer Visionary tier. Keep 'Fluxer Visionary' as a proper name. Preserve placeholders exactly.
 #: fluxer_marketing/generated:content.help.article.visionary.title
@@ -993,7 +1017,8 @@ msgctxt "content.help.article.visionary.description"
 msgid ""
 "{visionary_tier_full_name} was a limited lifetime {premium_tier_name} offering that sold out in February 2026. Learn about the numbered badge and what {visionary_tier_name} includes."
 msgstr ""
-"{visionary_tier_full_name} 是一款限量终身 {premium_tier_name} 产品，已于 2026 年 2 月售罄。了解编号徽章以及 {visionary_tier_name} 包含的内容。"
+"{visionary_tier_full_name} 是一款限量终身 {premium_tier_name} 产品，已于 "
+"2026 年 2 月售罄。了解编号徽章以及 {visionary_tier_name} 包含的内容。"
 
 #. Help article title about how file attachments eventually expire. Keep it as an explanatory phrase.
 #: fluxer_marketing/generated:content.help.article.attachment_expiry.title
@@ -1006,7 +1031,9 @@ msgstr "附件过期机制说明"
 msgctxt "content.help.article.attachment_expiry.description"
 msgid ""
 "How we set attachment expiry, how access can extend it, and what to do before a file is removed."
-msgstr "我们如何设置附件过期、访问如何延长过期时间，以及文件被删除前可以采取哪些措施。"
+msgstr ""
+"我们如何设置附件过期、访问如何延长过期时间，以及文件被删除前可以采取哪些措施"
+"。"
 
 #. Help article title about filing bug reports.
 #: fluxer_marketing/generated:content.help.article.report_bug.title
@@ -1081,7 +1108,9 @@ msgstr "最低年龄要求"
 msgctxt "content.help.article.minimum_age.description"
 msgid ""
 "The minimum age to use {product_name} by country, how age is determined, and what happens if an account is suspected of being underage."
-msgstr "各国使用 {product_name} 的最低年龄、年龄如何确定，以及账户被怀疑为未成年时的处理方式。"
+msgstr ""
+"各国使用 {product_name} 的最低年龄、年龄如何确定，以及账户被怀疑为未成年时的"
+"处理方式。"
 
 #. Help article title about the copyright/IP complaint process. Keep legal-sounding phrasing.
 #: fluxer_marketing/generated:content.help.article.copyright.title
@@ -1131,7 +1160,9 @@ msgstr "地区限制"
 msgctxt "content.help.article.regional_restrictions.description"
 msgid ""
 "How regional age verification laws affect your access to {product_name}, which regions are currently affected, and what restrictions apply."
-msgstr "地区性年龄验证法律如何影响您对 {product_name} 的访问、目前哪些地区受到影响以及适用哪些限制。"
+msgstr ""
+"地区性年龄验证法律如何影响您对 {product_name} 的访问、目前哪些地区受到影响以"
+"及适用哪些限制。"
 
 #. Accessible label on the small icon button next to help/policy article headings; clicking copies a deep link to that section.
 #: fluxer_marketing/generated:content.help.copy_link_to_section
@@ -1162,7 +1193,9 @@ msgstr "向 {product_name} 捐赠"
 msgctxt "donations.errors.active_subscription_exists"
 msgid ""
 "You already have an active recurring donation. To start a different recurring donation, please cancel your current one first using the customer portal. You can make a one-time donation instead."
-msgstr "你已有一笔定期捐赠。要开始新的定期捐赠，请先通过捐赠者门户取消当前捐赠。你也可以选择进行一次性捐赠。"
+msgstr ""
+"你已有一笔定期捐赠。要开始新的定期捐赠，请先通过捐赠者门户取消当前捐赠。你也"
+"可以选择进行一次性捐赠。"
 
 #. Body copy in the donation flow. Prioritize clarity, trust, and form usability; preserve amount, currency, email, and status placeholders exactly.
 #: fluxer_marketing/generated:donations.errors.generic
@@ -1283,7 +1316,9 @@ msgstr "个人"
 msgctxt "donations.manage.description"
 msgid ""
 "Enter your email to receive a link to your donor portal, where you can manage subscriptions, download invoices, and view your donation history."
-msgstr "输入你的电子邮件地址，即可收到捐赠者门户的链接，你可以在此管理订阅、下载发票并查看捐赠记录。"
+msgstr ""
+"输入你的电子邮件地址，即可收到捐赠者门户的链接，你可以在此管理订阅、下载发票"
+"并查看捐赠记录。"
 
 #. Body copy in the donation flow. Prioritize clarity, trust, and form usability; preserve amount, currency, email, and status placeholders exactly.
 #: fluxer_marketing/generated:donations.manage.success
@@ -2125,7 +2160,9 @@ msgstr "如何将 {product_name} 应用于社区"
 msgctxt "partner_program.who_its_for"
 msgid ""
 "For creators and community owners: free {premium_tier_name}, a partner badge, a custom vanity URL, and more."
-msgstr "面向创作者和社区所有者：免费 {premium_tier_name}、合作伙伴徽章、自定义专属 URL，以及更多权益。"
+msgstr ""
+"面向创作者和社区所有者：免费 {premium_tier_name}、合作伙伴徽章、自定义专属 "
+"URL，以及更多权益。"
 
 #. Body copy in platform availability and download support copy. Keep wording clear about desktop, web, and mobile status.
 #: fluxer_marketing/generated:platform_support.desktop.available_on_desktop_and_web
@@ -2137,7 +2174,9 @@ msgstr "支持桌面、网页版"
 #: fluxer_marketing/generated:platform_support.desktop.download_desktop_intro
 msgctxt "platform_support.desktop.download_desktop_intro"
 msgid "Download {product_name} for {windows}, {macos}, and {linux}. Mobile apps are underway."
-msgstr "下载适用于 {windows}、{macos} 和 {linux} 的 {product_name}。移动应用正在开发中。"
+msgstr ""
+"下载适用于 {windows}、{macos} 和 {linux} 的 {product_name}。移动应用正在开发"
+"中。"
 
 #. Alt text for a desktop product screenshot. Preserve {product_name} exactly; describe the image as the desktop interface, not as a download action. Preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.desktop.interface_label
@@ -2169,7 +2208,8 @@ msgctxt "platform_support.desktop.windows_game_capture_warning.body"
 msgid ""
 "The {game_capture} build is not code-signed yet, so {microsoft_defender} may quarantine it until {microsoft} approves it. The standard {windows} build is unaffected."
 msgstr ""
-"{game_capture} 构建尚未进行代码签名，因此 {microsoft_defender} 可能会将其隔离，直到 {microsoft} 批准。标准的 {windows} 构建不受影响。"
+"{game_capture} 构建尚未进行代码签名，因此 {microsoft_defender} 可能会将其隔离"
+"，直到 {microsoft} 批准。标准的 {windows} 构建不受影响。"
 
 #. Body copy for mobile/PWA install guidance on the download page. Keep instructions clear, device-appropriate, and concise; preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.install_as_app.done_desktop
@@ -2416,7 +2456,9 @@ msgstr "Web 应用"
 msgctxt "platform_support.mobile.web_app.body"
 msgid ""
 "{product_name} runs in any mobile browser and installs to your home screen like a Progressive Web App. It is the most complete way to use {product_name} on a phone today."
-msgstr "{product_name} 可在任何移动浏览器中运行，并可像渐进式 Web 应用一样安装到主屏幕。这是今天在手机上使用的 {product_name} 的最完整方式。"
+msgstr ""
+"{product_name} 可在任何移动浏览器中运行，并可像渐进式 Web 应用一样安装到主屏"
+"幕。这是今天在手机上使用的 {product_name} 的最完整方式。"
 
 #. Card title for the iOS app option on the download page. Keep the platform name conventional and short. Preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.ios.title
@@ -2430,7 +2472,9 @@ msgctxt "platform_support.mobile.ios.body"
 msgid ""
 "As of 15 June 2026, the {ios} app is in a limited {testflight} beta with a small group of {premium_tier_name} subscribers. {testflight} slots are limited, so the best way in for most people is to wait for the public release."
 msgstr ""
-"截至 2026 年 6 月 15 日，{ios} 应用正处于一个有限的 {testflight} 测试版阶段，仅限一小部分 {premium_tier_name} 订阅用户。{testflight} 名额有限，因此大多数人最好的方式是等待公开发布。"
+"截至 2026 年 6 月 15 日，{ios} 应用正处于一个有限的 {testflight} 测试版阶段，"
+"仅限一小部分 {premium_tier_name} 订阅用户。{testflight} 名额有限，因此大多数"
+"人最好的方式是等待公开发布。"
 
 #. Card title for the Android app option on the download page. Keep the platform name conventional and short. Preserve placeholders exactly.
 #: fluxer_marketing/generated:platform_support.mobile.android.title
@@ -2455,7 +2499,9 @@ msgstr "下载 APK"
 msgctxt "platform_support.mobile.alpha_disclaimer"
 msgid ""
 "The {ios} and {android} apps are early alphas. They may be missing features you expect or still have bugs, and we are working hard to fix that. The web app is not an alpha, and it stays the most complete mobile option for now."
-msgstr "{ios} 和 {android} 应用均为早期测试版。它们可能缺少您期望的功能或仍存在错误，我们正在努力修复。Web 应用不是测试版，目前仍是手机上功能最全的选择。"
+msgstr ""
+"{ios} 和 {android} 应用均为早期测试版。它们可能缺少您期望的功能或仍存在错误，"
+"我们正在努力修复。Web 应用不是测试版，目前仍是手机上功能最全的选择。"
 
 #. Short UI label or heading in the press kit and brand asset download area. Keep terminology professional for brand/logo usage guidance; preserve placeholders exactly.
 #: fluxer_marketing/generated:press_branding.assets.brand_colors_heading
@@ -2674,7 +2720,8 @@ msgctxt "pricing_and_tiers.plutonium.benefits_note_official_instance_only"
 msgid ""
 "Note: {premium_tier_name} and {visionary_tier_name} benefits only apply to the official {product_name}.app instance, not third-party or self-hosted instances."
 msgstr ""
-"注意：{premium_tier_name} 和 {visionary_tier_name} 权益仅适用于官方 {product_name}.app 实例，不适用于第三方或自托管实例。"
+"注意：{premium_tier_name} 和 {visionary_tier_name} 权益仅适用于官方 "
+"{product_name}.app 实例，不适用于第三方或自托管实例。"
 
 #. Body copy describing the Plutonium paid tier. Keep the tier name unchanged unless the locale normally transliterates product tier names; preserve placeholders exactly.
 #: fluxer_marketing/generated:pricing_and_tiers.plutonium.feature_highlights
@@ -2789,7 +2836,9 @@ msgstr "在个人资料上展示专属徽章，彰显 {premium_tier_name} 身份
 msgctxt "pricing_and_tiers.plutonium.standard_pricing_available"
 msgid ""
 "Prefer paying in standard {currency}? Also available at checkout for {monthly_price} or {yearly_price}."
-msgstr "偏好使用标准 {currency} 支付？结账时也可选择 {monthly_price} 或 {yearly_price}。"
+msgstr ""
+"偏好使用标准 {currency} 支付？结账时也可选择 {monthly_price} 或 "
+"{yearly_price}。"
 
 #. Short UI label or heading describing the Plutonium paid tier. Keep the tier name unchanged unless the locale normally transliterates product tier names; preserve placeholders exactly.
 #: fluxer_marketing/generated:pricing_and_tiers.plutonium.tier_name
@@ -2814,7 +2863,9 @@ msgstr "{product_name} 是免费开源的。任何人都可以免费自托管。
 msgctxt "product_positioning.intro"
 msgid ""
 "{product_name} is a free and open source instant messaging and VoIP chat app built for friends, groups, and communities."
-msgstr "{product_name} 是一款免费开源的即时消息和 VoIP 聊天应用，专为朋友、群组和社区打造。"
+msgstr ""
+"{product_name} 是一款免费开源的即时消息和 VoIP 聊天应用，专为朋友、群组和社区"
+"打造。"
 
 #. Button or link label explaining Fluxer open-source licensing. Keep legal/license tokens such as AGPLv3 unchanged.
 #: fluxer_marketing/generated:product_positioning.open_source.fully_open_source_agplv3
@@ -2870,7 +2921,10 @@ msgctxt "product_positioning.self_hosting.operator_pass.donating_with_perks_smal
 msgid ""
 "Think of the optional {operator_pass} like donating with perks: you help keep {product_name} going and get the {operators} community, a smaller place where self-hosters and the {product_name} team can help when you get stuck, hear your ideas, and discuss feedback before it gets buried on {github}."
 msgstr ""
-"可以把可选的 {operator_pass} 看作带有福利的捐赠：你帮助 {product_name} 持续运转，并加入 {operators} 社区。这里是一个更小的空间，当你卡住时，其他自托管者和 {product_name} 团队可以提供帮助，也能听到你的想法，并在反馈被 {github} 淹没之前一起讨论。"
+"可以把可选的 {operator_pass} 看作带有福利的捐赠：你帮助 {product_name} 持续运"
+"转，并加入 {operators} 社区。这里是一个更小的空间，当你卡住时，其他自托管者"
+"和 {product_name} 团队可以提供帮助，也能听到你的想法，并在反馈被 {github} 淹"
+"没之前一起讨论。"
 
 #. Body copy explaining self-hosting and Operator Pass expectations. Keep technical wording accurate and preserve product-name placeholders exactly.
 #: fluxer_marketing/generated:product_positioning.self_hosting.run_backend_on_your_hardware
@@ -2895,7 +2949,9 @@ msgstr "发现安全问题？"
 msgctxt "security.responsible_disclosure_note"
 msgid ""
 "We appreciate responsible disclosure via our security bug bounty page. We offer {premium_tier_name} codes and {bug_hunter} badges based on severity."
-msgstr "我们鼓励通过安全漏洞赏金页面负责任地披露漏洞。我们将根据严重程度提供 {premium_tier_name} 会员兑换码和 {bug_hunter} 徽章。"
+msgstr ""
+"我们鼓励通过安全漏洞赏金页面负责任地披露漏洞。我们将根据严重程度提供 "
+"{premium_tier_name} 会员兑换码和 {bug_hunter} 徽章。"
 
 #. Compact UI label in security, bug bounty, or responsible disclosure sections. Keep wording precise, calm, and trustworthy; preserve placeholders exactly.
 #: fluxer_marketing/generated:security.security_bug_bounty
@@ -3126,4 +3182,6 @@ msgstr "语言"
 msgctxt "voice_regions.languages_intro"
 msgid ""
 "{product_name} is available in over thirty languages. To help translate {product_name} into your native language, write to {email}."
-msgstr "{product_name} 有三十多种语言版本。为了帮助将 {product_name} 翻译成您的母语，请写信给 {email}。"
+msgstr ""
+"{product_name} 有三十多种语言版本。为了帮助将 {product_name} 翻译成您的母语，"
+"请写信给 {email}。"
