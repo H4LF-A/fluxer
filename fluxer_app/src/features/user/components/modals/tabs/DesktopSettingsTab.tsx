@@ -3,14 +3,17 @@
 import {ConfirmModal} from '@app/features/app/components/dialogs/ConfirmModal';
 import {SettingsSection} from '@app/features/app/components/dialogs/shared/SettingsSection';
 import {SettingsTabContainer} from '@app/features/app/components/dialogs/shared/SettingsTabLayout';
-import {PRODUCT_NAME} from '@app/features/app/config/I18nDisplayConstants';
+import {EXAMPLE_DOMAIN, EXAMPLE_URL, PRODUCT_NAME} from '@app/features/app/config/I18nDisplayConstants';
+import {normalizeInstanceOrigin} from '@app/features/auth/flow/BrowserLoginHandoffModal';
 import {
 	getAutostartStatus,
 	getCachedAutostartStatus,
 	setAutostartEnabled,
 } from '@app/features/platform/utils/Autostart';
+import {Button} from '@app/features/ui/button/Button';
 import * as ModalCommands from '@app/features/ui/commands/ModalCommands';
 import {modal} from '@app/features/ui/commands/ModalCommands';
+import {Input} from '@app/features/ui/components/form/FormInput';
 import {Switch} from '@app/features/ui/components/form/FormSwitch';
 import {
 	getCachedDesktopWindowBehaviorSettings,
@@ -19,13 +22,14 @@ import {
 	relaunchDesktopApp,
 	setDesktopWindowBehaviorSettings,
 } from '@app/features/ui/utils/DesktopWindowBehaviorUtils';
-import {guessPlatform, isDesktop, isNativeLinux, isNativeMacOS} from '@app/features/ui/utils/NativeUtils';
+import {getElectronAPI, guessPlatform, isDesktop, isNativeLinux, isNativeMacOS} from '@app/features/ui/utils/NativeUtils';
+import * as FormUtils from '@app/lib/forms';
 import type {DesktopWindowBehaviorSettings} from '@app/types/electron.d';
 import {msg} from '@lingui/core/macro';
 import {Trans, useLingui} from '@lingui/react/macro';
 import {observer} from 'mobx-react-lite';
 import type React from 'react';
-import {useLayoutEffect, useState} from 'react';
+import {useCallback, useLayoutEffect, useState} from 'react';
 
 const LAUNCH_PRODUCT_AT_LOGIN_DESCRIPTOR = msg({
 	message: 'Launch {productName} at login',
@@ -48,6 +52,34 @@ const LATER_DESCRIPTOR = msg({
 	message: 'Later',
 	comment: 'Short label in the desktop settings tab. Keep it concise.',
 });
+const INSTANCE_URL_DESCRIPTOR = msg({
+	message: 'Instance URL',
+	comment: 'Desktop setting label for the field showing which server this client is connected to.',
+});
+const INSTANCE_URL_HINT_DESCRIPTOR = msg({
+	message: 'The URL of the {productName} instance to connect to.',
+	comment: 'Desktop setting field hint for the instance URL input. Product name is interpolated.',
+});
+const INVALID_INSTANCE_URL_DESCRIPTOR = msg({
+	message: 'Invalid instance URL. Try something like "{exampleDomain}" or "{exampleUrl}".',
+	comment: 'Desktop setting validation error for an unparseable instance URL. Example domain and URL are interpolated.',
+});
+const SWITCH_INSTANCE_DESCRIPTOR = msg({
+	message: 'Switch',
+	comment: 'Short button label in the desktop settings tab that switches the connected instance.',
+});
+const SWITCH_INSTANCE_CONFIRM_TITLE_DESCRIPTOR = msg({
+	message: 'Switch instance?',
+	comment: 'Confirmation prompt title in the desktop settings tab.',
+});
+const SWITCH_INSTANCE_CONFIRM_DESCRIPTION_DESCRIPTOR = msg({
+	message: '{productName} will reload and connect to {instanceUrl}. You will need to sign in again if this is a different account.',
+	comment: 'Confirmation prompt body in the desktop settings tab. Product name and target instance URL are interpolated.',
+});
+const CANCEL_DESCRIPTOR = msg({
+	message: 'Cancel',
+	comment: 'Short label in the desktop settings tab. Keep it concise.',
+});
 const DesktopSettingsTab: React.FC = observer(() => {
 	const {i18n} = useLingui();
 	const cachedAutostart = getCachedAutostartStatus();
@@ -59,6 +91,12 @@ const DesktopSettingsTab: React.FC = observer(() => {
 	);
 	const [desktopWindowBehaviorBusy, setDesktopWindowBehaviorBusy] = useState(cachedWindowBehavior === null);
 	const [trayChangePendingRestart, setTrayChangePendingRestart] = useState(false);
+	const electronApi = getElectronAPI();
+	const switchInstanceUrl = electronApi?.switchInstanceUrl;
+	const canSwitchInstanceUrl = typeof switchInstanceUrl === 'function';
+	const [instanceUrl, setInstanceUrl] = useState(() => (isDesktop() ? window.location.origin : ''));
+	const [instanceUrlError, setInstanceUrlError] = useState<string | null>(null);
+	const [instanceUrlBusy, setInstanceUrlBusy] = useState(false);
 	const platform = guessPlatform();
 	const isMac = isNativeMacOS(platform);
 	const isLinux = isNativeLinux(platform);
@@ -118,6 +156,49 @@ const DesktopSettingsTab: React.FC = observer(() => {
 		setDesktopWindowBehaviorBusy(false);
 		return {pending};
 	};
+	const handleInstanceUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setInstanceUrl(e.target.value);
+		setInstanceUrlError(null);
+	};
+	const handleSwitchInstance = useCallback(() => {
+		if (!switchInstanceUrl) return;
+		let normalized: string;
+		try {
+			normalized = normalizeInstanceOrigin(instanceUrl);
+		} catch {
+			setInstanceUrlError(
+				i18n._(INVALID_INSTANCE_URL_DESCRIPTOR, {exampleDomain: EXAMPLE_DOMAIN, exampleUrl: EXAMPLE_URL}),
+			);
+			return;
+		}
+		if (normalized === window.location.origin) return;
+		ModalCommands.push(
+			modal(() => (
+				<ConfirmModal
+					title={i18n._(SWITCH_INSTANCE_CONFIRM_TITLE_DESCRIPTOR)}
+					description={i18n._(SWITCH_INSTANCE_CONFIRM_DESCRIPTION_DESCRIPTOR, {
+						productName: PRODUCT_NAME,
+						instanceUrl: normalized,
+					})}
+					primaryText={i18n._(SWITCH_INSTANCE_DESCRIPTOR)}
+					primaryVariant="primary"
+					secondaryText={i18n._(CANCEL_DESCRIPTOR)}
+					onPrimary={async () => {
+						setInstanceUrlBusy(true);
+						setInstanceUrlError(null);
+						try {
+							await switchInstanceUrl({instanceUrl: normalized});
+						} catch (error) {
+							setInstanceUrlError(FormUtils.extractErrorMessage(i18n, error));
+						} finally {
+							setInstanceUrlBusy(false);
+						}
+					}}
+					data-flx="user.desktop-settings-tab.switch-instance.confirm-modal"
+				/>
+			)),
+		);
+	}, [i18n, instanceUrl, switchInstanceUrl]);
 	const handleShowTrayIconChange = (value: boolean) => {
 		void handleDesktopWindowBehaviorChange({showTrayIcon: value}).then(({pending}) => {
 			if (!pending || !isNativeLinux()) return;
@@ -145,6 +226,40 @@ const DesktopSettingsTab: React.FC = observer(() => {
 	};
 	return (
 		<SettingsTabContainer data-flx="user.desktop-settings-tab.settings-tab-container">
+			{canSwitchInstanceUrl && (
+				<SettingsSection
+					id="desktop-instance"
+					title={<Trans>Instance</Trans>}
+					data-flx="user.desktop-settings-tab.settings-tab-section--instance"
+				>
+					<Input
+						label={i18n._(INSTANCE_URL_DESCRIPTOR)}
+						value={instanceUrl}
+						onChange={handleInstanceUrlChange}
+						error={instanceUrlError ?? undefined}
+						disabled={instanceUrlBusy}
+						autoComplete="url"
+						placeholder={EXAMPLE_DOMAIN}
+						footer={
+							!instanceUrlError ? (
+								<p data-flx="user.desktop-settings-tab.instance-url-hint">
+									{i18n._(INSTANCE_URL_HINT_DESCRIPTOR, {productName: PRODUCT_NAME})}
+								</p>
+							) : null
+						}
+						data-flx="user.desktop-settings-tab.input.instance-url-change"
+					/>
+					<Button
+						variant="secondary"
+						onClick={handleSwitchInstance}
+						disabled={instanceUrlBusy || !instanceUrl.trim()}
+						submitting={instanceUrlBusy}
+						data-flx="user.desktop-settings-tab.button.switch-instance"
+					>
+						<Trans>Switch</Trans>
+					</Button>
+				</SettingsSection>
+			)}
 			<SettingsSection
 				id="desktop-window"
 				title={<Trans>Desktop window</Trans>}

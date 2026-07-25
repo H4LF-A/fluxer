@@ -46,7 +46,7 @@ interface BrowserLoginHandoffModalProps {
 
 const POLL_INTERVAL_MS = 2000;
 
-function normalizeInstanceOrigin(raw: string): string {
+export function normalizeInstanceOrigin(raw: string): string {
 	const trimmed = raw.trim();
 	if (!trimmed) {
 		throw new Error('Instance URL is required');
