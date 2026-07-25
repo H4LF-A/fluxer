@@ -11,6 +11,13 @@
 		reverse_proxy api:8080
 	}
 
+	# Custom-instance discovery clients (and non-official-domain client bootstrapping)
+	# fetch this bare path directly - it must reach the API's own root route, not
+	# fall through to the app-proxy SPA catch-all below.
+	handle /.well-known/fluxer {
+		reverse_proxy api:8080
+	}
+
 	handle /gateway {
 		rewrite * /
 		reverse_proxy gateway:8080
