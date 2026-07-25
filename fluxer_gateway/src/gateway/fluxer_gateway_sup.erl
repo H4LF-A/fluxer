@@ -23,8 +23,18 @@ start_link() ->
 init([]) ->
     SupFlags = #{
         strategy => one_for_one,
-        intensity => 5,
-        period => 10
+        %% process_health_watchdog deliberately kills any singleton (session_manager,
+        %% call_manager, guild_manager, push_dispatcher, ...) whose mailbox stays over
+        %% ?KILL_THRESHOLD for 3 consecutive 10s checks. A correlated overload (e.g. a mass
+        %% voice-reconnect storm right after a restart) can push several of these ~10 singletons
+        %% over threshold at nearly the same time, so several defensive kills can land within one
+        %% restart-intensity window even though each is individually a legitimate, by-design
+        %% action. A too-tight budget here turns that expected self-healing into a full gateway
+        %% crash instead, which then triggers another reconnect storm on restart. Sized to absorb
+        %% one such correlated kill of every singleton child without escalating, while still
+        %% catching a process that is genuinely crash-looping on startup.
+        intensity => 10,
+        period => 30
     },
     Children = common_children() ++ role_children(current_role()),
     {ok, {SupFlags, Children}}.
