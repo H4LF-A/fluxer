@@ -414,7 +414,8 @@ class KeybindManager {
 		this.disposers.push(
 			autorun(() => {
 				const desired = this.computeDesiredGlobalHookShortcuts();
-				void this.enqueueInputSync(() => this.applyGlobalShortcuts(desired));
+				const bindings = this.buildHoldBindings();
+				void this.enqueueInputSync(() => this.applyInputBindings(desired, bindings));
 			}),
 		);
 		this.disposers.push(
@@ -424,12 +425,6 @@ class KeybindManager {
 					MediaEngine.handlePushToTalkModeChange();
 				},
 			),
-		);
-		this.disposers.push(
-			autorun(() => {
-				const bindings = this.buildHoldBindings();
-				void this.enqueueInputSync(() => this.applyHoldBindings(bindings));
-			}),
 		);
 		this.disposers.push(
 			autorun(() => {
@@ -501,13 +496,28 @@ class KeybindManager {
 		return bindings;
 	}
 
+	/**
+	 * Applies desired global shortcuts and hold bindings together, then decides once whether the
+	 * global key hook should stop. Applying them separately (each deciding independently whether
+	 * to stop the hook) could observe the other's stale, not-yet-applied state and stop the hook
+	 * only to immediately restart it moments later, leaving a brief window where global hotkeys
+	 * silently miss input.
+	 */
+	private async applyInputBindings(
+		desiredCombos: ReadonlyMap<string, KeyCombo>,
+		bindings: Array<HoldBindingRuntime>,
+	): Promise<void> {
+		await this.applyGlobalShortcuts(desiredCombos);
+		await this.applyHoldBindings(bindings);
+		this.maybeStopGlobalKeyHook();
+	}
+
 	private async applyHoldBindings(bindings: Array<HoldBindingRuntime>): Promise<void> {
 		this.detachLocalHoldListener();
 		this.releaseGlobalHoldBindings();
 		this.releaseGamepadHoldBindings();
 		this.holdBindings = bindings;
 		if (bindings.length === 0 || this.suspended || !this.initialized) {
-			this.maybeStopGlobalKeyHook();
 			this.refreshGamepadPolling();
 			return;
 		}
@@ -536,7 +546,6 @@ class KeybindManager {
 				binding.routing = null;
 			}
 		}
-		this.maybeStopGlobalKeyHook();
 		if (needsLocal) {
 			this.attachLocalHoldListener();
 		}
@@ -1100,8 +1109,9 @@ class KeybindManager {
 
 	async reapplyGlobalShortcuts() {
 		if (!this.initialized) return;
-		await this.enqueueInputSync(() => this.applyGlobalShortcuts(this.computeDesiredGlobalHookShortcuts()));
-		await this.enqueueInputSync(() => this.applyHoldBindings(this.buildHoldBindings()));
+		await this.enqueueInputSync(() =>
+			this.applyInputBindings(this.computeDesiredGlobalHookShortcuts(), this.buildHoldBindings()),
+		);
 	}
 
 	destroy() {
@@ -1430,8 +1440,9 @@ class KeybindManager {
 		this.manualSuspendCount = Math.max(0, this.manualSuspendCount - 1);
 		if (!this.suspended) {
 			this.refreshLocalShortcuts();
-			void this.enqueueInputSync(() => this.applyGlobalShortcuts(this.computeDesiredGlobalHookShortcuts()));
-			void this.enqueueInputSync(() => this.applyHoldBindings(this.buildHoldBindings()));
+			void this.enqueueInputSync(() =>
+				this.applyInputBindings(this.computeDesiredGlobalHookShortcuts(), this.buildHoldBindings()),
+			);
 		}
 	}
 
@@ -1452,8 +1463,9 @@ class KeybindManager {
 		}
 		if (!this.suspended) {
 			this.refreshLocalShortcuts();
-			void this.enqueueInputSync(() => this.applyGlobalShortcuts(this.computeDesiredGlobalHookShortcuts()));
-			void this.enqueueInputSync(() => this.applyHoldBindings(this.buildHoldBindings()));
+			void this.enqueueInputSync(() =>
+				this.applyInputBindings(this.computeDesiredGlobalHookShortcuts(), this.buildHoldBindings()),
+			);
 		}
 	}
 
@@ -1585,7 +1597,6 @@ class KeybindManager {
 				});
 			}
 		}
-		this.maybeStopGlobalKeyHook();
 	}
 
 	private releaseGlobalRegistration(shortcutId: string): void {

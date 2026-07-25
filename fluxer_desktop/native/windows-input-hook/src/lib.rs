@@ -166,19 +166,19 @@ mod platform {
     use napi::threadsafe_function::ThreadsafeFunctionCallMode;
     use std::sync::{
         Arc, Mutex, MutexGuard, OnceLock,
-        atomic::{AtomicBool, AtomicI32, AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
         mpsc,
     };
     use std::thread::{self, JoinHandle};
     use std::time::Duration;
-    use windows::Win32::Foundation::{LPARAM, LRESULT, POINT, WPARAM};
+    use windows::Win32::Foundation::{LPARAM, LRESULT, WPARAM};
     use windows::Win32::System::LibraryLoader::GetModuleHandleW;
     use windows::Win32::UI::Input::KeyboardAndMouse::{
-        GetKeyState, GetKeyboardLayout, MAPVK_VSC_TO_VK_EX, MapVirtualKeyExW, VK_CONTROL, VK_LWIN,
-        VK_MENU, VK_RWIN, VK_SHIFT,
+        GetKeyState, GetKeyboardLayout, GetLastInputInfo, LASTINPUTINFO, MAPVK_VSC_TO_VK_EX,
+        MapVirtualKeyExW, VK_CONTROL, VK_LWIN, VK_MENU, VK_RWIN, VK_SHIFT,
     };
     use windows::Win32::UI::WindowsAndMessaging::{
-        CallNextHookEx, DispatchMessageW, GetCursorPos, GetForegroundWindow, GetMessageW,
+        CallNextHookEx, DispatchMessageW, GetForegroundWindow, GetMessageW,
         GetWindowThreadProcessId, HHOOK, KBDLLHOOKSTRUCT, MSG, MSLLHOOKSTRUCT, PM_NOREMOVE,
         PeekMessageW, PostThreadMessageW, SetWindowsHookExW, TranslateMessage, UnhookWindowsHookEx,
         WH_KEYBOARD_LL, WH_MOUSE_LL, WM_APP, WM_KEYDOWN, WM_KEYUP, WM_QUIT, WM_SYSKEYDOWN,
@@ -199,10 +199,10 @@ mod platform {
         pub(crate) watchdog_stop: AtomicBool,
         pub(crate) worker_thread: Mutex<Option<JoinHandle<()>>>,
         pub(crate) watchdog_thread: Mutex<Option<JoinHandle<()>>>,
-        pub(crate) last_cursor_x: AtomicI32,
-        pub(crate) last_cursor_y: AtomicI32,
         pub(crate) last_event_ms: AtomicU64,
-        pub(crate) last_cursor_change_ms: AtomicU64,
+        /// System-wide last-input tick (from `GetLastInputInfo`), covering both keyboard and
+        /// mouse activity independent of whether our low-level hooks are still receiving events.
+        pub(crate) last_system_input_ms: AtomicU64,
         pub(crate) reinstall_count: AtomicU64,
     }
 
@@ -236,6 +236,23 @@ mod platform {
 
     fn now_ms() -> u64 {
         unsafe { windows::Win32::System::SystemInformation::GetTickCount64() }
+    }
+
+    /// Tick (in the same domain as `now_ms()`) of the most recent keyboard-or-mouse input seen
+    /// anywhere on the system, per `GetLastInputInfo`. Unlike our own hooks, this is populated by
+    /// the OS input stack directly, so it stays reliable even if `WH_KEYBOARD_LL`/`WH_MOUSE_LL`
+    /// have been silently unhooked (which Windows does to hooks that block too long).
+    fn last_system_input_ms() -> u64 {
+        let mut info = LASTINPUTINFO {
+            cbSize: size_of::<LASTINPUTINFO>() as u32,
+            dwTime: 0,
+        };
+        if !unsafe { GetLastInputInfo(&mut info) }.as_bool() {
+            return now_ms();
+        }
+        let tick32 = unsafe { windows::Win32::System::SystemInformation::GetTickCount() };
+        let idle_ms = u64::from(tick32.wrapping_sub(info.dwTime));
+        now_ms().saturating_sub(idle_ms)
     }
 
     fn sample_modifiers() -> (bool, bool, bool, bool) {
@@ -485,21 +502,13 @@ mod platform {
             if handle.watchdog_stop.load(Ordering::Acquire) {
                 break;
             }
-            let mut pt = POINT::default();
-            if unsafe { GetCursorPos(&mut pt) }.is_err() {
-                continue;
-            }
             let now = now_ms();
-            let lx = handle.last_cursor_x.load(Ordering::Relaxed);
-            let ly = handle.last_cursor_y.load(Ordering::Relaxed);
-            if pt.x != lx || pt.y != ly {
-                handle.last_cursor_x.store(pt.x, Ordering::Relaxed);
-                handle.last_cursor_y.store(pt.y, Ordering::Relaxed);
-                handle.last_cursor_change_ms.store(now, Ordering::Release);
-            }
+            handle
+                .last_system_input_ms
+                .store(last_system_input_ms(), Ordering::Release);
             let last_event = handle.last_event_ms.load(Ordering::Acquire);
-            let last_cursor_change = handle.last_cursor_change_ms.load(Ordering::Acquire);
-            if last_cursor_change > last_event && now.wrapping_sub(last_event) > WATCHDOG_TIMEOUT_MS
+            let last_system_input = handle.last_system_input_ms.load(Ordering::Acquire);
+            if last_system_input > last_event && now.wrapping_sub(last_event) > WATCHDOG_TIMEOUT_MS
             {
                 let tid = handle.thread_id.load(Ordering::Acquire) as u32;
                 if tid != 0 {
@@ -528,12 +537,9 @@ mod platform {
         handle.watchdog_stop.store(false, Ordering::Release);
         let now = now_ms();
         handle.last_event_ms.store(now, Ordering::Release);
-        handle.last_cursor_change_ms.store(now, Ordering::Release);
-        let mut pt = POINT::default();
-        if unsafe { GetCursorPos(&mut pt) }.is_ok() {
-            handle.last_cursor_x.store(pt.x, Ordering::Relaxed);
-            handle.last_cursor_y.store(pt.y, Ordering::Relaxed);
-        }
+        handle
+            .last_system_input_ms
+            .store(last_system_input_ms(), Ordering::Release);
 
         let (ready_tx, ready_rx) = mpsc::channel();
         let worker = {
@@ -617,10 +623,8 @@ mod platform {
             watchdog_stop: AtomicBool::new(false),
             worker_thread: Mutex::new(None),
             watchdog_thread: Mutex::new(None),
-            last_cursor_x: AtomicI32::new(0),
-            last_cursor_y: AtomicI32::new(0),
             last_event_ms: AtomicU64::new(0),
-            last_cursor_change_ms: AtomicU64::new(0),
+            last_system_input_ms: AtomicU64::new(0),
             reinstall_count: AtomicU64::new(0),
         })
     }
