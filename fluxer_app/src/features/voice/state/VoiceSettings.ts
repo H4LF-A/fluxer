@@ -261,8 +261,8 @@ class VoiceSettings {
 	outputVolume = 100;
 	echoCancellation = true;
 	noiseSuppression = true;
-	autoGainControl = true;
-	deepFilterNoiseSuppressionPrefV2 = true;
+	autoGainControl = false;
+	deepFilterNoiseSuppressionPrefV2 = false;
 	deepFilterNoiseSuppressionLevelPrefV2 = 80;
 	voiceProcessingMode: VoiceProcessingMode = DEFAULT_VOICE_PROCESSING_MODE;
 	voiceProcessingModeByDeviceLabel: Record<string, VoiceProcessingMode> = {};

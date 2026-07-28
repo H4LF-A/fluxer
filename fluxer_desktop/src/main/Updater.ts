@@ -615,7 +615,14 @@ export function registerUpdater(getMainWindow: () => BrowserWindow | null) {
 		return;
 	}
 	if (process.platform === 'win32') {
-		registerVelopackUpdater(getMainWindow);
+		// This self-hosted fork has no update feed of its own, and the stock
+		// Velopack updater points at the official upstream api.fluxer.app.
+		// That feed's release data is incompatible with this fork's Velopack
+		// native addon: parsing it corrupts the native heap (STATUS_HEAP_CORRUPTION)
+		// on installed (non-portable) builds every ~30 minutes via the background
+		// update-check timer. Disable native update checks rather than pointing
+		// at a feed that can crash the app.
+		registerManualUpdater(getMainWindow, 'managed-package');
 		return;
 	}
 	if (process.platform === 'darwin') {

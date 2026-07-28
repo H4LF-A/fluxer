@@ -74,4 +74,11 @@ export const Routes = {
 		!pathname.startsWith('/channels/@me') &&
 		!pathname.startsWith('/channels/@favorites') &&
 		!pathname.startsWith('/channels/@discover'),
+	isMobileBottomNavRoute: (pathname: string) =>
+		pathname === Routes.ME ||
+		pathname === Routes.FAVORITES ||
+		Routes.isDiscoverRoute(pathname) ||
+		pathname === Routes.NOTIFICATIONS ||
+		pathname === Routes.YOU ||
+		(Routes.isGuildChannelRoute(pathname) && pathname.split('/').length === 3),
 } as const;

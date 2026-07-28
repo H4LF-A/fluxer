@@ -25,7 +25,7 @@ export interface ResolvedVoiceProcessing {
 	contentHint: '' | 'speech' | 'music';
 }
 
-export const DEFAULT_VOICE_PROCESSING_MODE: VoiceProcessingMode = 'voice';
+export const DEFAULT_VOICE_PROCESSING_MODE: VoiceProcessingMode = 'custom';
 export const DEEP_FILTER_NOISE_REDUCTION_LEVEL_MIN = 0;
 export const DEEP_FILTER_NOISE_REDUCTION_LEVEL_MAX = 100;
 export const FOCUSED_VOICE_DEEP_FILTER_NOISE_REDUCTION_LEVEL = 100;

@@ -17,14 +17,7 @@ interface GuildSidebarProps {
 export const GuildSidebar = observer(({header, content, roundTopLeft = true}: GuildSidebarProps) => {
 	const mobileLayout = MobileLayout;
 	const location = useLocation();
-	const showBottomNav =
-		mobileLayout.enabled &&
-		(location.pathname === Routes.ME ||
-			location.pathname === Routes.FAVORITES ||
-			Routes.isDiscoverRoute(location.pathname) ||
-			location.pathname === Routes.NOTIFICATIONS ||
-			location.pathname === Routes.YOU ||
-			(Routes.isGuildChannelRoute(location.pathname) && location.pathname.split('/').length === 3));
+	const showBottomNav = mobileLayout.enabled && Routes.isMobileBottomNavRoute(location.pathname);
 	return (
 		<div
 			className={clsx(

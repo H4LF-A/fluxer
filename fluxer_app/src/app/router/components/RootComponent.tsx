@@ -298,13 +298,7 @@ export const RootComponent: React.FC<{children?: React.ReactNode}> = observer(({
 		navigateWithHistoryStack,
 		normalizeInternalUrl,
 	]);
-	const showBottomNav =
-		mobileLayoutState.enabled &&
-		(location.pathname === Routes.ME ||
-			location.pathname === Routes.FAVORITES ||
-			location.pathname === Routes.NOTIFICATIONS ||
-			location.pathname === Routes.YOU ||
-			(Routes.isGuildChannelRoute(location.pathname) && location.pathname.split('/').length === 3));
+	const showBottomNav = mobileLayoutState.enabled && Routes.isMobileBottomNavRoute(location.pathname);
 	if (shouldShowSelfHostedSetup) {
 		return <SelfHostedSetupWizardGate />;
 	}

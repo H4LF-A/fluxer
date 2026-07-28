@@ -528,7 +528,6 @@ export class VoiceEngineV2AppMediaExecutionAdapter extends Store {
 			echoCancellation: options.echoCancellation ?? profile.echoCancellation,
 			noiseSuppression: options.noiseSuppression ?? profile.browserNoiseSuppression,
 			autoGainControl: options.autoGainControl ?? profile.autoGainControl,
-			voiceIsolation: false,
 		};
 	}
 

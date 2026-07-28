@@ -172,11 +172,10 @@ export const useMicTest = (settings: MicTestSettings) => {
 				}
 			}
 			const profile = resolveVoiceProcessing(settings);
-			const baseAudioConstraints: MediaTrackConstraints & {voiceIsolation?: boolean} = {
+			const baseAudioConstraints: MediaTrackConstraints = {
 				echoCancellation: profile.echoCancellation,
 				noiseSuppression: profile.browserNoiseSuppression,
 				autoGainControl: profile.autoGainControl,
-				voiceIsolation: false,
 			};
 			const useExactDeviceId = settings.inputDeviceId !== 'default';
 			const buildAudioConstraints = (exact: boolean): MediaTrackConstraints =>

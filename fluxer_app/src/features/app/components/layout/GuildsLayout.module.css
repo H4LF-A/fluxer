@@ -3,18 +3,19 @@
 .guildsLayoutContainer {
 	--layout-user-area-overlay-height: 0;
 	--layout-user-area-reserved-height: 0;
-	--layout-mobile-bottom-nav-reserved-height: 0;
 	position: relative;
 	display: grid;
 	grid-template-columns: var(--layout-guild-list-width) minmax(0, 1fr);
 	grid-template-rows: minmax(0, 1fr);
 	grid-auto-rows: minmax(0, 1fr);
+	box-sizing: border-box;
 	height: 100%;
 	min-height: 0;
 	max-height: 100%;
 	width: 100%;
 	min-width: 0;
 	max-width: 100%;
+	padding-bottom: var(--layout-mobile-bottom-nav-reserved-height, 0);
 	background-color: var(--background-secondary);
 }
 
@@ -42,7 +43,7 @@
 	grid-column: 1;
 	grid-row: 1;
 	min-height: 0;
-	height: calc(100% - var(--layout-user-area-reserved-height, 0) - var(--layout-mobile-bottom-nav-reserved-height, 0));
+	height: calc(100% - var(--layout-user-area-reserved-height, 0));
 	width: var(--layout-guild-list-width);
 	min-width: 0;
 	background-color: var(--background-secondary);

@@ -1032,9 +1032,19 @@ export function createWindow(options: CreateWindowOptions = {}): BrowserWindow {
 	};
 	void clearStartupRenderingCaches(session).then(loadAppUrl);
 	webContents.on('will-navigate', (event, url) => {
-		if (!isTrustedOrigin(url)) {
-			event.preventDefault();
-		}
+		if (isTrustedOrigin(url)) return;
+		// A same-origin navigation (e.g. the app's own client-side
+		// `location.replace('/channels/@me')` redirect after loading a custom
+		// self-hosted instance) is never a cross-origin navigation risk, even
+		// when that origin isn't in the static trusted list or persisted custom
+		// app URL. Blocking it here silently freezes the app on a blank page
+		// with no renderer-visible error.
+		if (getOrigin(url) === getOrigin(webContents.getURL())) return;
+		log.warn('Blocked untrusted top-level navigation', {
+			url,
+			customAppUrl: getCustomAppUrl(),
+		});
+		event.preventDefault();
 	});
 	webContents.on('did-create-window', (window, details) => {
 		if (

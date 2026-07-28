@@ -849,14 +849,7 @@ export const GuildsLayout = observer(({children}: {children: React.ReactNode}) =
 			Routes.isDiscoverRoute(location.pathname) ||
 			(Routes.isChannelRoute(location.pathname) && location.pathname.split('/').length === 3));
 	const showBottomNav =
-		!isVoiceCallFullscreenActive &&
-		mobileLayout.enabled &&
-		(location.pathname === Routes.ME ||
-			location.pathname === Routes.FAVORITES ||
-			Routes.isDiscoverRoute(location.pathname) ||
-			location.pathname === Routes.NOTIFICATIONS ||
-			location.pathname === Routes.YOU ||
-			(Routes.isGuildChannelRoute(location.pathname) && location.pathname.split('/').length === 3));
+		!isVoiceCallFullscreenActive && mobileLayout.enabled && Routes.isMobileBottomNavRoute(location.pathname);
 	const nagbarConditions = useNagbarConditions();
 	const activeNagbars = useActiveNagbars(nagbarConditions);
 	const prevNagbarCount = useRef(activeNagbars.length);

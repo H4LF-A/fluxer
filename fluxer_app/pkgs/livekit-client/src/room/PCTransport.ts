@@ -141,7 +141,8 @@ export default class PCTransport extends EventEmitter {
 			sdpParsed.media.forEach((media) => {
 				const mid = getMidString(media.mid!);
 				if (media.type === 'audio') {
-					ensureOpusFmtp(media);
+					const highFidelity = isHighFidelityLocalAudioMid(this.pc, mid);
+					ensureOpusFmtp(media, highFidelity);
 					this.trackBitrates.some((trackbr): boolean => {
 						if (!trackbr.transceiver || mid !== trackbr.transceiver.mid) {
 							return false;
@@ -151,7 +152,7 @@ export default class PCTransport extends EventEmitter {
 							return true;
 						}
 						if (trackbr.codec.toLowerCase() === 'opus') {
-							ensureOpusFmtp(media, trackbr.maxbr > 0 ? trackbr.maxbr * 1000 : opusMaxAverageBitrateBps);
+							ensureOpusFmtp(media, highFidelity, trackbr.maxbr > 0 ? trackbr.maxbr * 1000 : undefined);
 						}
 						return true;
 					});
@@ -228,7 +229,8 @@ export default class PCTransport extends EventEmitter {
 			sdpParsed.media.forEach((media) => {
 				ensureIPAddrMatchVersion(media);
 				if (media.type === 'audio') {
-					ensureAudioNackAndStereo(media, ['all'], []);
+					const mid = getMidString(media.mid!);
+					ensureAudioNackAndStereo(media, ['all'], [], isHighFidelityLocalAudioMid(this.pc, mid));
 				} else if (media.type === 'video') {
 					this.trackBitrates.some((trackbr): boolean => {
 						if (!media.msid || !trackbr.cid || !media.msid.includes(trackbr.cid)) {
@@ -286,7 +288,13 @@ export default class PCTransport extends EventEmitter {
 		sdpParsed.media.forEach((media) => {
 			ensureIPAddrMatchVersion(media);
 			if (media.type === 'audio') {
-				ensureAudioNackAndStereo(media, this.remoteStereoMids, this.remoteNackMids);
+				const mid = getMidString(media.mid!);
+				ensureAudioNackAndStereo(
+					media,
+					this.remoteStereoMids,
+					this.remoteNackMids,
+					isHighFidelityLocalAudioMid(this.pc, mid),
+				);
 			}
 		});
 		await this.setMungedSDP(answer, write(sdpParsed));
@@ -571,21 +579,36 @@ function ensureAudioRedFmtp(media: MediaDescription, opusPayload: number): void 
 	}
 }
 
-function ensureOpusFmtp(media: MediaDescription, maxAverageBitrateBps: number = opusMaxAverageBitrateBps): number {
+function ensureOpusFmtp(
+	media: MediaDescription,
+	highFidelity: boolean,
+	explicitMaxAverageBitrateBps?: number,
+): number {
 	const opusPayload = getCodecPayload(media, 'opus');
 	if (opusPayload <= 0) return 0;
-	media.ptime = opusPacketTimeMs;
 	const fmtp = ensureFmtp(media, opusPayload);
 	let config = fmtp.config;
-	for (const [key, value] of Object.entries(requiredOpusFmtpParameters)) {
-		config = setFmtpParameter(config, key, value);
+	if (highFidelity) {
+		media.ptime = opusPacketTimeMs;
+		for (const [key, value] of Object.entries(requiredOpusFmtpParameters)) {
+			config = setFmtpParameter(config, key, value);
+		}
 	}
-	if (maxAverageBitrateBps > 0) {
-		config = setFmtpParameter(config, 'maxaveragebitrate', String(maxAverageBitrateBps));
+	const effectiveBitrateBps = explicitMaxAverageBitrateBps ?? (highFidelity ? opusMaxAverageBitrateBps : 0);
+	if (effectiveBitrateBps > 0) {
+		config = setFmtpParameter(config, 'maxaveragebitrate', String(effectiveBitrateBps));
 	}
 	fmtp.config = config;
 	ensureAudioRedFmtp(media, opusPayload);
 	return opusPayload;
+}
+
+// A local audio track is "high fidelity" (studio voice mode or screen-share audio) when it
+// carries contentHint 'music'; regular voice mic tracks are left at Opus's normal voice
+// defaults instead of being forced into stereo/no-DTX/high-bitrate encoding.
+function isHighFidelityLocalAudioMid(pc: RTCPeerConnection, mid: string): boolean {
+	const transceiver = pc.getTransceivers().find((t) => t.mid === mid);
+	return transceiver?.sender.track?.contentHint === 'music';
 }
 
 function ensureAudioNackAndStereo(
@@ -597,9 +620,10 @@ function ensureAudioNackAndStereo(
 	} & MediaDescription,
 	_stereoMids: Array<string>,
 	nackMids: Array<string>,
+	highFidelity: boolean,
 ) {
 	const mid = getMidString(media.mid!);
-	const opusPayload = ensureOpusFmtp(media);
+	const opusPayload = ensureOpusFmtp(media, highFidelity);
 	if (opusPayload > 0) {
 		if (!media.rtcpFb) {
 			media.rtcpFb = [];
