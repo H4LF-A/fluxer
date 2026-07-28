@@ -136,11 +136,15 @@ export const useMediaPermission = (type: PermissionType, options: UseMediaPermis
 			setState((prev) => ({...prev, status: 'denied'}));
 			return;
 		}
-		if (!autoRequest && !osPermissionLooksGranted) {
+		// Prime device permissions unless the browser has explicitly denied
+		// them. Skipping while the state was still 'prompt' left the device
+		// dropdowns empty until the first voice join (the join's own audio
+		// warmup was the first thing to ever request permission).
+		if (!autoRequest && cachedPermissionState === 'denied') {
 			return;
 		}
 		void unlockDevicesRef.current().catch(() => {});
-	}, [isExplicitlyDenied, type, autoRequest, osPermissionLooksGranted]);
+	}, [isExplicitlyDenied, type, autoRequest, cachedPermissionState]);
 	return {
 		...state,
 		isExplicitlyDenied,

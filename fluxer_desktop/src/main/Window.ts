@@ -88,12 +88,20 @@ function shouldRetryAppLoadFailure(errorCode: number): boolean {
 	return errorCode < 0 && errorCode !== -3;
 }
 
-function getElectronLoadErrorCode(error: unknown): number | null {
+export function getElectronLoadErrorCode(error: unknown): number | null {
 	const message = error instanceof Error ? error.message : String(error);
 	const match = /\(([-\d]+)\)/.exec(message);
 	if (!match) return null;
 	const value = Number.parseInt(match[1], 10);
 	return Number.isFinite(value) ? value : null;
+}
+
+// ERR_ABORTED (-3) means the page started its own navigation (e.g. the
+// app's client-side redirect to /channels/@me) before the initial load
+// finished — the window is fine; only a real failure should be treated
+// as one.
+export function isBenignLoadAbort(error: unknown): boolean {
+	return getElectronLoadErrorCode(error) === -3;
 }
 
 function getOrigin(url?: string): string | null {

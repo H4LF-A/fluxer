@@ -629,6 +629,25 @@ class VoiceDeviceManager {
 							(error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError')
 						) {
 							permissionStatus = 'denied';
+						} else if (!useNativeAudioDevices) {
+							// The combined audio+video request fails with NotFoundError
+							// on machines without a webcam, which previously left the
+							// device lists unlabeled/empty until the first voice join.
+							// Retry audio-only and re-enumerate so labels populate.
+							try {
+								const audioStream = await navigator.mediaDevices.getUserMedia({audio: true});
+								audioStream.getTracks().forEach((track) => track.stop());
+								permissionStatus = 'granted';
+								logger.debug('Audio-only permission prime succeeded, re-enumerating');
+								devices = await navigator.mediaDevices.enumerateDevices();
+							} catch (audioError) {
+								logger.debug('Audio-only permission prime failed', {audioError});
+								permissionStatus =
+									audioError instanceof DOMException &&
+									(audioError.name === 'NotAllowedError' || audioError.name === 'PermissionDeniedError')
+										? 'denied'
+										: 'granted';
+							}
 						} else {
 							permissionStatus = 'granted';
 						}

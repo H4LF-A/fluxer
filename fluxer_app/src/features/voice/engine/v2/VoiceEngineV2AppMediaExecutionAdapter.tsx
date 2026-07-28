@@ -528,6 +528,10 @@ export class VoiceEngineV2AppMediaExecutionAdapter extends Store {
 			echoCancellation: options.echoCancellation ?? profile.echoCancellation,
 			noiseSuppression: options.noiseSuppression ?? profile.browserNoiseSuppression,
 			autoGainControl: options.autoGainControl ?? profile.autoGainControl,
+			// Must stay explicitly false: the vendored livekit defaults enable
+			// Chrome's ML voice isolation, which converges over the first
+			// seconds of a call and progressively muffles the outgoing audio.
+			voiceIsolation: false,
 		};
 	}
 

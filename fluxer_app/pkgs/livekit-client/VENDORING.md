@@ -48,9 +48,12 @@ source edits in this package.
    sender capabilities; pairs advanced codecs with H.264 backup simulcast; and
    uses maintain-resolution screen-share defaults with a 4K60-ready bitrate cap.
 
-9. **High-fidelity Opus SDP munging** (`src/room/PCTransport.ts`)
-   Forces Opus RED/FEC, stereo signaling, 10 ms packet time, no DTX, and a
-   510 kbps maximum average bitrate in local offers and remote answers.
+9. **Opus SDP munging, gated by content hint** (`src/room/PCTransport.ts`)
+   High-fidelity tracks (contentHint 'music': studio voice mode and
+   screen-share audio) get RED/FEC, stereo signaling, 10 ms packet time, no
+   DTX, and a 510 kbps maximum average bitrate. Plain voice tracks get a
+   stable mono profile instead: FEC on, DTX off, minptime 10, and a 64 kbps
+   maximum average bitrate (overridden by the channel bitrate when set).
 
 ## Updating from upstream
 

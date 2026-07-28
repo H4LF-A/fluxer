@@ -72,6 +72,7 @@ import {
 	getActiveAllowTransparency,
 	getActiveUseNativeTitleBar,
 	getMainWindow,
+	isBenignLoadAbort,
 	setThemeStudioPopoutAlwaysOnTop,
 	setVoicePopoutAlwaysOnTop,
 	showWindow,
@@ -232,6 +233,14 @@ export function registerIpcHandlers(): void {
 		try {
 			await mainWindow.loadURL(instanceOrigin);
 		} catch (error) {
+			// The loaded app immediately client-side-redirects (e.g. to
+			// /channels/@me), which rejects loadURL with ERR_ABORTED even
+			// though the instance loaded fine. Rolling back the persisted
+			// URL on that benign rejection is what made the app forget the
+			// instance on next launch.
+			if (isBenignLoadAbort(error)) {
+				return;
+			}
 			setCustomAppUrl(null);
 			pendingDesktopHandoffCode = null;
 			const detail = error instanceof Error ? error.message : String(error);

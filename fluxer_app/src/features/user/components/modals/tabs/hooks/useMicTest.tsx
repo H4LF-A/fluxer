@@ -172,10 +172,14 @@ export const useMicTest = (settings: MicTestSettings) => {
 				}
 			}
 			const profile = resolveVoiceProcessing(settings);
-			const baseAudioConstraints: MediaTrackConstraints = {
+			// voiceIsolation must stay explicitly false: Chrome's ML voice
+			// isolation converges over the first seconds of capture and
+			// audibly muffles voice; the vendored livekit defaults enable it.
+			const baseAudioConstraints: MediaTrackConstraints & {voiceIsolation?: boolean} = {
 				echoCancellation: profile.echoCancellation,
 				noiseSuppression: profile.browserNoiseSuppression,
 				autoGainControl: profile.autoGainControl,
+				voiceIsolation: false,
 			};
 			const useExactDeviceId = settings.inputDeviceId !== 'default';
 			const buildAudioConstraints = (exact: boolean): MediaTrackConstraints =>
@@ -195,6 +199,10 @@ export const useMicTest = (settings: MicTestSettings) => {
 				stream = await navigator.mediaDevices.getUserMedia({audio: buildAudioConstraints(false)});
 			}
 			micStreamRef.current = stream;
+			// A successful capture proves mic permission is granted — clear any
+			// stale "explicitly denied" state, which otherwise permanently
+			// swallows unmute attempts in LocalVoiceStateMachine.
+			MediaPermission.updateMicrophonePermissionGranted();
 			const sourceTrack = stream.getAudioTracks()[0];
 			if (!sourceTrack) {
 				throw new Error('getUserMedia returned no audio tracks for mic test');

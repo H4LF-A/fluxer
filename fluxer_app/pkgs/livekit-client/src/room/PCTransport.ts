@@ -20,6 +20,7 @@ interface TrackBitrateInfo {
 
 const startBitrateForSVC = 0.7;
 const opusMaxAverageBitrateBps = 510000;
+const opusVoiceMaxAverageBitrateBps = 64000;
 const opusPacketTimeMs = 10;
 const requiredOpusFmtpParameters = {
 	minptime: '10',
@@ -27,6 +28,14 @@ const requiredOpusFmtpParameters = {
 	usedtx: '0',
 	stereo: '1',
 	'sprop-stereo': '1',
+};
+// Plain voice tracks get a stable mono profile: DTX off and FEC on prevent
+// the encoder's adaptive behavior from audibly degrading speech seconds into
+// a call, without forcing the stereo/10ms/510k studio profile.
+const voiceOpusFmtpParameters = {
+	minptime: '10',
+	useinbandfec: '1',
+	usedtx: '0',
 };
 const debounceInterval = 20;
 export const PCEvents = {
@@ -593,8 +602,13 @@ function ensureOpusFmtp(
 		for (const [key, value] of Object.entries(requiredOpusFmtpParameters)) {
 			config = setFmtpParameter(config, key, value);
 		}
+	} else {
+		for (const [key, value] of Object.entries(voiceOpusFmtpParameters)) {
+			config = setFmtpParameter(config, key, value);
+		}
 	}
-	const effectiveBitrateBps = explicitMaxAverageBitrateBps ?? (highFidelity ? opusMaxAverageBitrateBps : 0);
+	const effectiveBitrateBps =
+		explicitMaxAverageBitrateBps ?? (highFidelity ? opusMaxAverageBitrateBps : opusVoiceMaxAverageBitrateBps);
 	if (effectiveBitrateBps > 0) {
 		config = setFmtpParameter(config, 'maxaveragebitrate', String(effectiveBitrateBps));
 	}
