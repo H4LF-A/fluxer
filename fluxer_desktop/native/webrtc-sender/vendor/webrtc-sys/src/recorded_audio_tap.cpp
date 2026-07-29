@@ -128,6 +128,21 @@ void RecordingTransportProxy::TeeRecordedData(const void* audioSamples,
                   "nChannels=%zu samplesPerSec=%u",
                   audioSamples, nSamples, nBytesPerSample, nChannels, samplesPerSec);
     AdmNativeStatusLog(buf);
+    // Dump the first few raw 32-bit values interpreted BOTH as int32 and as
+    // float32, so the actual WASAPI mix format (PCM int vs IEEE float) can be
+    // confirmed from real data instead of assumed. Only meaningful when
+    // nBytesPerSample == 4; harmless (garbage but unused) otherwise.
+    if (audioSamples != nullptr && nBytesPerSample == 4) {
+      const uint32_t* raw32 = static_cast<const uint32_t*>(audioSamples);
+      const float* rawFloat = static_cast<const float*>(audioSamples);
+      char dumpBuf[400];
+      int offset = std::snprintf(dumpBuf, sizeof(dumpBuf), "TeeRecordedData: raw sample dump:");
+      for (int i = 0; i < 8 && offset < static_cast<int>(sizeof(dumpBuf)) - 40; i++) {
+        offset += std::snprintf(dumpBuf + offset, sizeof(dumpBuf) - offset, " [hex=%08x asFloat=%g]", raw32[i],
+                                static_cast<double>(rawFloat[i]));
+      }
+      AdmNativeStatusLog(dumpBuf);
+    }
   }
   if (audioSamples == nullptr) {
     return;
@@ -138,16 +153,17 @@ void RecordingTransportProxy::TeeRecordedData(const void* audioSamples,
   if (samplesPerSec == 0) {
     return;
   }
-  // The platform ADM does not always deliver int16 samples - Windows WASAPI
-  // shared-mode capture commonly uses a 32-bit float mix format (observed:
-  // nBytesPerSample == 4), which this tap previously rejected outright,
-  // silently dropping every single frame forever. Accept both and convert
-  // float to int16 before the existing int16-based resample/tee path.
+  // DIAGNOSTIC BUILD: the previous attempt at converting nBytesPerSample==4
+  // frames as IEEE float produced ear-hurting noise for the user, meaning
+  // that format assumption was likely wrong (could be 32-bit int PCM
+  // instead). Reverted to the original safe behavior (reject non-int16,
+  // fall back to the bare Device path) while the raw sample dump above
+  // gathers real evidence of the actual format before trying again.
   const int16_t* int16_samples = nullptr;
   const size_t total_samples = nSamples * nChannels;
   if (nBytesPerSample == sizeof(int16_t)) {
     int16_samples = static_cast<const int16_t*>(audioSamples);
-  } else if (nBytesPerSample == sizeof(float)) {
+  } else if (false && nBytesPerSample == sizeof(float)) {
     if (float_convert_scratch_.size() < total_samples) {
       float_convert_scratch_.resize(total_samples);
     }
