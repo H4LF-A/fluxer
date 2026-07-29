@@ -132,13 +132,32 @@ void RecordingTransportProxy::TeeRecordedData(const void* audioSamples,
   if (audioSamples == nullptr) {
     return;
   }
-  if (nBytesPerSample != sizeof(int16_t)) {
-    return;
-  }
   if (nChannels == 0) {
     return;
   }
   if (samplesPerSec == 0) {
+    return;
+  }
+  // The platform ADM does not always deliver int16 samples - Windows WASAPI
+  // shared-mode capture commonly uses a 32-bit float mix format (observed:
+  // nBytesPerSample == 4), which this tap previously rejected outright,
+  // silently dropping every single frame forever. Accept both and convert
+  // float to int16 before the existing int16-based resample/tee path.
+  const int16_t* int16_samples = nullptr;
+  const size_t total_samples = nSamples * nChannels;
+  if (nBytesPerSample == sizeof(int16_t)) {
+    int16_samples = static_cast<const int16_t*>(audioSamples);
+  } else if (nBytesPerSample == sizeof(float)) {
+    if (float_convert_scratch_.size() < total_samples) {
+      float_convert_scratch_.resize(total_samples);
+    }
+    // WASAPI's IEEE-float mix format is normalized to [-1.0, 1.0], matching
+    // WebRTC's "Float" convention (not "FloatS16", which means [-32768,
+    // 32768]) - FloatToS16 is the correct converter here.
+    webrtc::FloatToS16(static_cast<const float*>(audioSamples), total_samples,
+                       float_convert_scratch_.data());
+    int16_samples = float_convert_scratch_.data();
+  } else {
     return;
   }
 
@@ -149,8 +168,7 @@ void RecordingTransportProxy::TeeRecordedData(const void* audioSamples,
     return;
   }
   if (global.sink.has_value()) {
-    webrtc::InterleavedView<const int16_t> source(
-        static_cast<const int16_t*>(audioSamples), nSamples, nChannels);
+    webrtc::InterleavedView<const int16_t> source(int16_samples, nSamples, nChannels);
     webrtc::voe::RemixAndResample(source, static_cast<int>(samplesPerSec),
                                   &capture_resampler_, &capture_frame_);
     rust::Slice<const int16_t> samples(
