@@ -1445,6 +1445,15 @@ let handlersRegistered = false;
 export function registerNativeVoiceEngineHandlers(): void {
 	if (handlersRegistered) return;
 	handlersRegistered = true;
+	// Start warming the audio device module as soon as the app boots rather
+	// than waiting for the renderer to ask (settings-open or mic-touch) —
+	// otherwise the probe only begins once voice settings are opened, and on
+	// a cold start that's often not done before the user gives up and the
+	// list only fills in later once something else (e.g. a mute toggle)
+	// happens to trigger it again.
+	if (isNativeVoiceEngineSupported()) {
+		startAdmWarmup();
+	}
 	ipcMain.handle(VOICE_ENGINE_V2_IPC_CHANNELS.isSupported, (): boolean => isNativeVoiceEngineSupported());
 	ipcMain.handle(
 		VOICE_ENGINE_V2_IPC_CHANNELS.getCapabilities,
