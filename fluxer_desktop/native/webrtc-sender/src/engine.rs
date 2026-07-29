@@ -562,6 +562,27 @@ fn run_deep_filter_processing(
     }
 }
 
+// TEMPORARY diagnostic: appends a plain-text trail of the mic capture pipe's
+// startup to %TEMP%\fluxer-mic-pipe-status.log, independent of electron-log
+// (which does not capture this native addon's own stdout/stderr) or the
+// engine-event bridge (which only reaches the renderer, and only logs there
+// if console forwarding is on). Deliberately dead simple - open in Notepad.
+mod mic_pipe_status_log {
+    use std::io::Write;
+
+    pub fn record(message: &str, is_deep_filter: bool) {
+        let path = std::env::temp_dir().join("fluxer-mic-pipe-status.log");
+        let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open(&path) else {
+            return;
+        };
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_millis())
+            .unwrap_or(0);
+        let _ = writeln!(file, "[{now}] deep_filter={is_deep_filter} {message}");
+    }
+}
+
 // TEMPORARY diagnostic: dumps the first few seconds of RAW (pre-processing,
 // pre-encode) captured mic audio to a WAV file in the OS temp directory, so
 // audio quality complaints can be checked directly against what the
@@ -584,13 +605,21 @@ mod raw_capture_dump {
             return;
         }
         let mut buffer = DUMP_BUFFER.lock();
+        if buffer.is_empty() {
+            super::mic_pipe_status_log::record("raw_capture_dump: first frame received, recording started", false);
+        }
         if buffer.len() >= DUMP_SAMPLE_CAPACITY {
             return;
         }
         buffer.extend_from_slice(samples);
         if buffer.len() >= DUMP_SAMPLE_CAPACITY {
-            if let Err(error) = write_wav(&buffer) {
-                eprintln!("raw capture dump: failed to write wav: {error}");
+            match write_wav(&buffer) {
+                Ok(()) => {
+                    super::mic_pipe_status_log::record("raw_capture_dump: wav write SUCCEEDED", false);
+                }
+                Err(error) => {
+                    super::mic_pipe_status_log::record(&format!("raw_capture_dump: wav write FAILED: {error}"), false);
+                }
             }
             DUMP_DONE.store(true, Ordering::Relaxed);
         }
@@ -2781,12 +2810,21 @@ impl VoiceEngine {
         self.unpublish_existing_microphone(&local, true).await?;
         self.set_device_mic_recording_requested(true);
         match mic_pipe {
-            Some(mic_pipe) => self.publish_mic_capture_pipe(&local, mic_pipe, options).await,
+            Some(mic_pipe) => {
+                mic_pipe_status_log::record("publish_device_microphone: using mic capture pipe", deep_filter_requested);
+                self.publish_mic_capture_pipe(&local, mic_pipe, options).await
+            }
             // Last-resort fallback if even the capture pipe itself failed to
             // start (e.g. device recording error): publish the bare Device
             // source so the call doesn't fail outright, accepting that this
             // path can't honor the user's processing choices.
-            None => self.publish_plain_device_microphone(&local, options).await,
+            None => {
+                mic_pipe_status_log::record(
+                    "publish_device_microphone: FALLING BACK to bare Device source (no APM control, no WAV dump)",
+                    deep_filter_requested,
+                );
+                self.publish_plain_device_microphone(&local, options).await
+            }
         }
     }
 
@@ -2837,7 +2875,9 @@ impl VoiceEngine {
         apm_options: AudioSourceOptions,
         is_deep_filter: bool,
     ) -> Option<DeepFilterMicrophone> {
+        mic_pipe_status_log::record("try_start_mic_capture_pipe: entered", is_deep_filter);
         if let Err(error) = platform_audio.start_recording() {
+            mic_pipe_status_log::record(&format!("FAILED at start_recording: {error}"), is_deep_filter);
             self.emit_mic_capture_pipe_fallback(is_deep_filter, &format!("start recording: {error}"));
             return None;
         }
@@ -2852,6 +2892,7 @@ impl VoiceEngine {
         } = match self.build_mic_capture_pipe(deep_filter_level, apm_options) {
             Ok(parts) => parts,
             Err(error) => {
+                mic_pipe_status_log::record(&format!("FAILED at build_mic_capture_pipe: {error}"), is_deep_filter);
                 self.emit_mic_capture_pipe_fallback(is_deep_filter, &error);
                 return None;
             }
@@ -2859,10 +2900,12 @@ impl VoiceEngine {
         match ready.await {
             Ok(Ok(())) => {}
             Ok(Err(error)) => {
+                mic_pipe_status_log::record(&format!("FAILED at processing thread ready: {error}"), is_deep_filter);
                 self.emit_mic_capture_pipe_fallback(is_deep_filter, &error);
                 return None;
             }
             Err(_) => {
+                mic_pipe_status_log::record("FAILED: mic capture pipe thread exited before ready", is_deep_filter);
                 self.emit_mic_capture_pipe_fallback(is_deep_filter, "mic capture pipe thread exited before ready");
                 return None;
             }
@@ -2872,10 +2915,12 @@ impl VoiceEngine {
             install_deep_filter_capture_tap(frame_sender, diagnostics, capture_count.clone());
         let tap_guard = RecordedAudioTapGuard { generation };
         if !await_deep_filter_capture_started(&capture_count).await {
+            mic_pipe_status_log::record("FAILED: no capture frames from device source", is_deep_filter);
             self.emit_mic_capture_pipe_fallback(is_deep_filter, "no capture frames from device source");
             return None;
         }
         let track = LocalAudioTrack::create_audio_track("mic", RtcAudioSource::Native(source));
+        mic_pipe_status_log::record("SUCCESS: mic capture pipe active", is_deep_filter);
         if is_deep_filter {
             emit_deep_filter_status(&self.events, &self.dropped_engine_events, "active", "");
         }
