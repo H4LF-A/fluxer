@@ -493,8 +493,17 @@ impl DeepFilterDiagnostics {
     }
 }
 
+// deep_filter_level: Some(level) runs the ML deep filter on every captured
+// frame before republishing; None passes frames through unchanged. The
+// passthrough mode exists because RtcAudioSource::Device (the plain
+// non-deep-filter microphone path) has no way to configure WebRTC's software
+// AEC/NS/AGC at all - configure_audio_processing() only toggles *hardware*
+// processing, which is never available on desktop, so it's a no-op there.
+// Routing plain captures through this same manual pipe with an explicit
+// AudioSourceOptions lets the user's actual echo/noise/AGC choices reach the
+// real software APM, which Device-sourced tracks otherwise ignore entirely.
 fn spawn_deep_filter_processing_thread(
-    noise_reduction_level: f64,
+    deep_filter_level: Option<f64>,
     source: NativeAudioSource,
     stop: Arc<AtomicBool>,
     diagnostics: DeepFilterDiagnostics,
@@ -504,26 +513,29 @@ fn spawn_deep_filter_processing_thread(
     assert_eq!(diagnostics.degraded_frames.load(Ordering::Acquire), 0);
     let (ready_sender, ready_receiver) = tokio::sync::oneshot::channel();
     std::thread::Builder::new()
-        .name("fluxer-deep-filter-mic".to_string())
+        .name("fluxer-mic-capture-pipe".to_string())
         .spawn(move || {
-            let processor = match DeepFilterProcessor::new(noise_reduction_level) {
-                Ok(processor) => processor,
-                Err(error) => {
-                    let _ = ready_sender.send(Err(error));
-                    return;
-                }
+            let processor = match deep_filter_level {
+                Some(level) => match DeepFilterProcessor::new(level) {
+                    Ok(processor) => Some(processor),
+                    Err(error) => {
+                        let _ = ready_sender.send(Err(error));
+                        return;
+                    }
+                },
+                None => None,
             };
             if ready_sender.send(Ok(())).is_err() {
                 return;
             }
             run_deep_filter_processing(processor, source, stop, diagnostics, frame_receiver);
         })
-        .map_err(|error| format!("spawn deep filter thread: {error}"))?;
+        .map_err(|error| format!("spawn mic capture pipe thread: {error}"))?;
     Ok(ready_receiver)
 }
 
 fn run_deep_filter_processing(
-    mut processor: DeepFilterProcessor,
+    mut processor: Option<DeepFilterProcessor>,
     source: NativeAudioSource,
     stop: Arc<AtomicBool>,
     diagnostics: DeepFilterDiagnostics,
@@ -538,7 +550,7 @@ fn run_deep_filter_processing(
         match received {
             Ok(mut frame) => {
                 process_and_capture_deep_filter_frame(
-                    &mut processor,
+                    processor.as_mut(),
                     &source,
                     &diagnostics,
                     &mut frame.samples,
@@ -551,14 +563,16 @@ fn run_deep_filter_processing(
 }
 
 fn process_and_capture_deep_filter_frame(
-    processor: &mut DeepFilterProcessor,
+    processor: Option<&mut DeepFilterProcessor>,
     source: &NativeAudioSource,
     diagnostics: &DeepFilterDiagnostics,
     samples: &mut [i16; deep_filter::DEEP_FILTER_FRAME_SAMPLES],
 ) {
     assert_eq!(samples.len(), deep_filter::DEEP_FILTER_FRAME_SAMPLES);
-    if let Err(error) = processor.process_frame(samples) {
-        diagnostics.record_degraded_frame(&error);
+    if let Some(processor) = processor {
+        if let Err(error) = processor.process_frame(samples) {
+            diagnostics.record_degraded_frame(&error);
+        }
     }
     let processed = AudioFrame {
         data: (&samples[..]).into(),
@@ -2641,8 +2655,17 @@ impl VoiceEngine {
             let noise_reduction_level = opts
                 .deep_filter_noise_reduction_level
                 .unwrap_or(audio::DEEP_FILTER_NOISE_REDUCTION_LEVEL_MAX);
-            self.try_start_deep_filter_microphone(&platform_audio, noise_reduction_level)
-                .await
+            self.try_start_mic_capture_pipe(
+                &platform_audio,
+                Some(noise_reduction_level),
+                AudioSourceOptions {
+                    echo_cancellation: false,
+                    noise_suppression: false,
+                    auto_gain_control: false,
+                },
+                true,
+            )
+            .await
         } else {
             None
         };
@@ -2653,6 +2676,10 @@ impl VoiceEngine {
             deep_filter_requested,
             deep_filter_mic.is_some(),
         );
+        // Legacy hardware-only toggle: never actually applies WebRTC's
+        // software APM on desktop (see build_mic_capture_pipe / the
+        // capture-pipe path below for the real control), kept for the
+        // rare platform where hardware processing exists and for logging.
         platform_audio
             .configure_audio_processing(audio::processing_options(
                 apm_intent.echo_cancellation,
@@ -2660,27 +2687,47 @@ impl VoiceEngine {
                 apm_intent.auto_gain_control,
             ))
             .map_err(|e| napi::Error::from_reason(format!("configure audio processing: {e}")))?;
+        // If deep filter wasn't requested, or it was requested but failed to
+        // start above, route through the same manual capture pipe with the
+        // user's actual echo/noise/AGC choices so they reach the real
+        // software APM - RtcAudioSource::Device has no way to configure this
+        // at all and always uses libwebrtc's fixed defaults.
+        let mic_pipe = match deep_filter_mic {
+            Some(mic) => Some(mic),
+            None => {
+                self.set_device_mic_recording_requested(true);
+                self.try_start_mic_capture_pipe(
+                    &platform_audio,
+                    None,
+                    AudioSourceOptions {
+                        echo_cancellation: apm_intent.echo_cancellation.unwrap_or(true),
+                        noise_suppression: apm_intent.noise_suppression.unwrap_or(true),
+                        auto_gain_control: apm_intent.auto_gain_control.unwrap_or(true),
+                    },
+                    false,
+                )
+                .await
+            }
+        };
         self.unpublish_existing_microphone(&local, true).await?;
         self.set_device_mic_recording_requested(true);
-        match deep_filter_mic {
-            Some(deep_filter_mic) => {
-                self.publish_deep_filter_microphone(&local, deep_filter_mic, options)
-                    .await
-            }
+        match mic_pipe {
+            Some(mic_pipe) => self.publish_mic_capture_pipe(&local, mic_pipe, options).await,
+            // Last-resort fallback if even the capture pipe itself failed to
+            // start (e.g. device recording error): publish the bare Device
+            // source so the call doesn't fail outright, accepting that this
+            // path can't honor the user's processing choices.
             None => self.publish_plain_device_microphone(&local, options).await,
         }
     }
 
-    fn build_deep_filter_pipe(
+    fn build_mic_capture_pipe(
         &self,
-        noise_reduction_level: f64,
+        deep_filter_level: Option<f64>,
+        apm_options: AudioSourceOptions,
     ) -> Result<DeepFilterPipeParts, String> {
         let source = NativeAudioSource::new(
-            AudioSourceOptions {
-                echo_cancellation: false,
-                noise_suppression: false,
-                auto_gain_control: false,
-            },
+            apm_options,
             deep_filter::DEEP_FILTER_SAMPLE_RATE_HZ,
             deep_filter::DEEP_FILTER_NUM_CHANNELS,
             DEEP_FILTER_SOURCE_QUEUE_MS,
@@ -2694,7 +2741,7 @@ impl VoiceEngine {
         let (frame_sender, frame_receiver) =
             mpsc::sync_channel::<DeepFilterCaptureFrame>(DEEP_FILTER_PIPE_QUEUE_FRAMES);
         let ready = spawn_deep_filter_processing_thread(
-            noise_reduction_level,
+            deep_filter_level,
             source.clone(),
             stop.clone(),
             diagnostics.clone(),
@@ -2709,13 +2756,20 @@ impl VoiceEngine {
         })
     }
 
-    async fn try_start_deep_filter_microphone(
+    // is_deep_filter selects both the ML transform (deep_filter_level) and
+    // whether "deepFilterStatus" events are emitted - the plain/passthrough
+    // mode reuses this same pipe purely to get real APM control over
+    // RtcAudioSource::Device, and must not report itself as deep filter
+    // activity to the renderer.
+    async fn try_start_mic_capture_pipe(
         &self,
         platform_audio: &PlatformAudio,
-        noise_reduction_level: f64,
+        deep_filter_level: Option<f64>,
+        apm_options: AudioSourceOptions,
+        is_deep_filter: bool,
     ) -> Option<DeepFilterMicrophone> {
         if let Err(error) = platform_audio.start_recording() {
-            self.emit_deep_filter_fallback(&format!("start recording: {error}"));
+            self.emit_mic_capture_pipe_fallback(is_deep_filter, &format!("start recording: {error}"));
             return None;
         }
         let capture_track =
@@ -2726,21 +2780,21 @@ impl VoiceEngine {
             diagnostics,
             frame_sender,
             ready,
-        } = match self.build_deep_filter_pipe(noise_reduction_level) {
+        } = match self.build_mic_capture_pipe(deep_filter_level, apm_options) {
             Ok(parts) => parts,
             Err(error) => {
-                self.emit_deep_filter_fallback(&error);
+                self.emit_mic_capture_pipe_fallback(is_deep_filter, &error);
                 return None;
             }
         };
         match ready.await {
             Ok(Ok(())) => {}
             Ok(Err(error)) => {
-                self.emit_deep_filter_fallback(&error);
+                self.emit_mic_capture_pipe_fallback(is_deep_filter, &error);
                 return None;
             }
             Err(_) => {
-                self.emit_deep_filter_fallback("deep filter thread exited before ready");
+                self.emit_mic_capture_pipe_fallback(is_deep_filter, "mic capture pipe thread exited before ready");
                 return None;
             }
         }
@@ -2749,11 +2803,13 @@ impl VoiceEngine {
             install_deep_filter_capture_tap(frame_sender, diagnostics, capture_count.clone());
         let tap_guard = RecordedAudioTapGuard { generation };
         if !await_deep_filter_capture_started(&capture_count).await {
-            self.emit_deep_filter_fallback("no capture frames from device source");
+            self.emit_mic_capture_pipe_fallback(is_deep_filter, "no capture frames from device source");
             return None;
         }
         let track = LocalAudioTrack::create_audio_track("mic", RtcAudioSource::Native(source));
-        emit_deep_filter_status(&self.events, &self.dropped_engine_events, "active", "");
+        if is_deep_filter {
+            emit_deep_filter_status(&self.events, &self.dropped_engine_events, "active", "");
+        }
         Some(DeepFilterMicrophone {
             track,
             capture_track,
@@ -2762,7 +2818,10 @@ impl VoiceEngine {
         })
     }
 
-    fn emit_deep_filter_fallback(&self, detail: &str) {
+    fn emit_mic_capture_pipe_fallback(&self, is_deep_filter: bool, detail: &str) {
+        if !is_deep_filter {
+            return;
+        }
         emit_deep_filter_status(
             &self.events,
             &self.dropped_engine_events,
@@ -2771,7 +2830,7 @@ impl VoiceEngine {
         );
     }
 
-    async fn publish_deep_filter_microphone(
+    async fn publish_mic_capture_pipe(
         &self,
         local: &LocalParticipant,
         deep_filter_mic: DeepFilterMicrophone,

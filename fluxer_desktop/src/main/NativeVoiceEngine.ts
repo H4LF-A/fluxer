@@ -382,6 +382,10 @@ function applyAdmTransition(state: VoiceEngineV2BridgeAudioDeviceModuleState): v
 }
 
 function startAdmWarmup(): void {
+	// info, not debug: this build's log file level is 'info' unless the
+	// build channel is canary, and this is exactly the trail needed to
+	// diagnose why device detection isn't warming up on a user's machine.
+	logger.info('startAdmWarmup called', {admState, hasAdmWarmupRun: admWarmupRun !== null});
 	if (admWarmupRun) return;
 	if (admState.status === 'ready') return;
 	const mod = loadEngineModule();
@@ -1455,10 +1459,20 @@ export function registerNativeVoiceEngineHandlers(): void {
 	// same sequence the known-working mute/unmute path runs via
 	// ensureEngineReady(), and calling only the narrower function here left
 	// out the addon-level prewarm step.
-	if (isNativeVoiceEngineSupported()) {
-		void prewarmNativeVoiceEngine().catch((error) => {
-			logger.warn('Eager native voice engine prewarm failed', {error});
-		});
+	const nativeVoiceEngineSupportedAtStartup = isNativeVoiceEngineSupported();
+	logger.info('Eager native voice engine warmup check', {
+		supported: nativeVoiceEngineSupportedAtStartup,
+		cachedModuleLoadErrorDetail,
+	});
+	if (nativeVoiceEngineSupportedAtStartup) {
+		logger.info('Starting eager native voice engine prewarm');
+		void prewarmNativeVoiceEngine()
+			.then(() => {
+				logger.info('Eager native voice engine prewarm finished', {admState});
+			})
+			.catch((error) => {
+				logger.warn('Eager native voice engine prewarm failed', {error, admState});
+			});
 	}
 	ipcMain.handle(VOICE_ENGINE_V2_IPC_CHANNELS.isSupported, (): boolean => isNativeVoiceEngineSupported());
 	ipcMain.handle(
