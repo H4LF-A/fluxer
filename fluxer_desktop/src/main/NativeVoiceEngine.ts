@@ -1450,9 +1450,15 @@ export function registerNativeVoiceEngineHandlers(): void {
 	// otherwise the probe only begins once voice settings are opened, and on
 	// a cold start that's often not done before the user gives up and the
 	// list only fills in later once something else (e.g. a mute toggle)
-	// happens to trigger it again.
+	// happens to trigger it again. Go through the full prewarm (addon
+	// prewarm + startAdmWarmup), not just startAdmWarmup alone - that's the
+	// same sequence the known-working mute/unmute path runs via
+	// ensureEngineReady(), and calling only the narrower function here left
+	// out the addon-level prewarm step.
 	if (isNativeVoiceEngineSupported()) {
-		startAdmWarmup();
+		void prewarmNativeVoiceEngine().catch((error) => {
+			logger.warn('Eager native voice engine prewarm failed', {error});
+		});
 	}
 	ipcMain.handle(VOICE_ENGINE_V2_IPC_CHANNELS.isSupported, (): boolean => isNativeVoiceEngineSupported());
 	ipcMain.handle(

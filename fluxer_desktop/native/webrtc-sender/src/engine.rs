@@ -5241,7 +5241,13 @@ fn build_microphone_publish_options(opts: &MicrophoneOptions) -> napi::Result<Tr
     Ok(TrackPublishOptions {
         source: TrackSource::Microphone,
         red: true,
-        dtx: true,
+        // The browser/JS publish path forces Opus DTX off for voice tracks
+        // (see PCTransport.ts's usedtx=0 fmtp override) because DTX's
+        // silence-detection re-engage causes an audible muffled/choppy onset
+        // at the start of speech. The native path has no equivalent SDP
+        // layer to override this at, so the value set here is final -
+        // hardcoding it on was giving every native voice call that artifact.
+        dtx: false,
         audio_encoding,
         ..Default::default()
     })
@@ -5672,7 +5678,7 @@ mod tests {
 
         assert_eq!(options.source, TrackSource::Microphone);
         assert!(options.red);
-        assert!(options.dtx);
+        assert!(!options.dtx);
         assert!(options.audio_encoding.is_none());
     }
 
