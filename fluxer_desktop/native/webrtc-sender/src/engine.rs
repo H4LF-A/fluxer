@@ -562,6 +562,74 @@ fn run_deep_filter_processing(
     }
 }
 
+// TEMPORARY diagnostic: dumps the first few seconds of RAW (pre-processing,
+// pre-encode) captured mic audio to a WAV file in the OS temp directory, so
+// audio quality complaints can be checked directly against what the
+// microphone hardware/driver actually delivered, independent of anything
+// this crate or WebRTC does afterward. Safe to delete once no longer needed.
+mod raw_capture_dump {
+    use parking_lot::Mutex;
+    use std::io::Write;
+    use std::sync::atomic::{AtomicBool, Ordering};
+
+    const DUMP_DURATION_SECS: usize = 5;
+    const DUMP_SAMPLE_CAPACITY: usize =
+        super::deep_filter::DEEP_FILTER_SAMPLE_RATE_HZ as usize * DUMP_DURATION_SECS;
+
+    static DUMP_DONE: AtomicBool = AtomicBool::new(false);
+    static DUMP_BUFFER: Mutex<Vec<i16>> = Mutex::new(Vec::new());
+
+    pub fn maybe_record_raw_frame(samples: &[i16]) {
+        if DUMP_DONE.load(Ordering::Relaxed) {
+            return;
+        }
+        let mut buffer = DUMP_BUFFER.lock();
+        if buffer.len() >= DUMP_SAMPLE_CAPACITY {
+            return;
+        }
+        buffer.extend_from_slice(samples);
+        if buffer.len() >= DUMP_SAMPLE_CAPACITY {
+            if let Err(error) = write_wav(&buffer) {
+                eprintln!("raw capture dump: failed to write wav: {error}");
+            }
+            DUMP_DONE.store(true, Ordering::Relaxed);
+        }
+    }
+
+    fn write_wav(samples: &[i16]) -> std::io::Result<()> {
+        let path = std::env::temp_dir().join("fluxer-raw-mic-capture.wav");
+        let mut file = std::fs::File::create(&path)?;
+        let sample_rate: u32 = super::deep_filter::DEEP_FILTER_SAMPLE_RATE_HZ;
+        let num_channels: u16 = super::deep_filter::DEEP_FILTER_NUM_CHANNELS as u16;
+        let bits_per_sample: u16 = 16;
+        let byte_rate = sample_rate * u32::from(num_channels) * u32::from(bits_per_sample) / 8;
+        let block_align = num_channels * bits_per_sample / 8;
+        let data_len = (samples.len() * 2) as u32;
+        file.write_all(b"RIFF")?;
+        file.write_all(&(36 + data_len).to_le_bytes())?;
+        file.write_all(b"WAVE")?;
+        file.write_all(b"fmt ")?;
+        file.write_all(&16u32.to_le_bytes())?;
+        file.write_all(&1u16.to_le_bytes())?; // PCM
+        file.write_all(&num_channels.to_le_bytes())?;
+        file.write_all(&sample_rate.to_le_bytes())?;
+        file.write_all(&byte_rate.to_le_bytes())?;
+        file.write_all(&block_align.to_le_bytes())?;
+        file.write_all(&bits_per_sample.to_le_bytes())?;
+        file.write_all(b"data")?;
+        file.write_all(&data_len.to_le_bytes())?;
+        for &sample in samples {
+            file.write_all(&sample.to_le_bytes())?;
+        }
+        eprintln!(
+            "raw capture dump: wrote {} raw mic samples to {}",
+            samples.len(),
+            path.display()
+        );
+        Ok(())
+    }
+}
+
 fn process_and_capture_deep_filter_frame(
     processor: Option<&mut DeepFilterProcessor>,
     source: &NativeAudioSource,
@@ -569,6 +637,7 @@ fn process_and_capture_deep_filter_frame(
     samples: &mut [i16; deep_filter::DEEP_FILTER_FRAME_SAMPLES],
 ) {
     assert_eq!(samples.len(), deep_filter::DEEP_FILTER_FRAME_SAMPLES);
+    raw_capture_dump::maybe_record_raw_frame(samples);
     if let Some(processor) = processor {
         if let Err(error) = processor.process_frame(samples) {
             diagnostics.record_degraded_frame(&error);
