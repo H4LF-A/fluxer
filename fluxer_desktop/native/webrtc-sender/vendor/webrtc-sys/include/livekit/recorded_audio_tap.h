@@ -106,11 +106,6 @@ class RecordingTransportProxy : public webrtc::AudioTransport {
   // which WebRTC serializes, so neither member needs a lock.
   webrtc::AudioFrame capture_frame_;
   webrtc::PushResampler<int16_t> capture_resampler_;
-  // Scratch buffer for converting the platform ADM's delivered format to
-  // int16 when it isn't already int16 (e.g. Windows WASAPI shared-mode
-  // capture commonly delivers 32-bit float samples). Reused across calls;
-  // std::vector only reallocates if the required size grows.
-  std::vector<int16_t> float_convert_scratch_;
 };
 
 }  // namespace livekit_ffi

@@ -128,21 +128,6 @@ void RecordingTransportProxy::TeeRecordedData(const void* audioSamples,
                   "nChannels=%zu samplesPerSec=%u",
                   audioSamples, nSamples, nBytesPerSample, nChannels, samplesPerSec);
     AdmNativeStatusLog(buf);
-    // Dump the first few raw 32-bit values interpreted BOTH as int32 and as
-    // float32, so the actual WASAPI mix format (PCM int vs IEEE float) can be
-    // confirmed from real data instead of assumed. Only meaningful when
-    // nBytesPerSample == 4; harmless (garbage but unused) otherwise.
-    if (audioSamples != nullptr && nBytesPerSample == 4) {
-      const uint32_t* raw32 = static_cast<const uint32_t*>(audioSamples);
-      const float* rawFloat = static_cast<const float*>(audioSamples);
-      char dumpBuf[400];
-      int offset = std::snprintf(dumpBuf, sizeof(dumpBuf), "TeeRecordedData: raw sample dump:");
-      for (int i = 0; i < 8 && offset < static_cast<int>(sizeof(dumpBuf)) - 40; i++) {
-        offset += std::snprintf(dumpBuf + offset, sizeof(dumpBuf) - offset, " [hex=%08x asFloat=%g]", raw32[i],
-                                static_cast<double>(rawFloat[i]));
-      }
-      AdmNativeStatusLog(dumpBuf);
-    }
   }
   if (audioSamples == nullptr) {
     return;
@@ -153,29 +138,18 @@ void RecordingTransportProxy::TeeRecordedData(const void* audioSamples,
   if (samplesPerSec == 0) {
     return;
   }
-  // DIAGNOSTIC BUILD: the previous attempt at converting nBytesPerSample==4
-  // frames as IEEE float produced ear-hurting noise for the user, meaning
-  // that format assumption was likely wrong (could be 32-bit int PCM
-  // instead). Reverted to the original safe behavior (reject non-int16,
-  // fall back to the bare Device path) while the raw sample dump above
-  // gathers real evidence of the actual format before trying again.
-  const int16_t* int16_samples = nullptr;
-  const size_t total_samples = nSamples * nChannels;
-  if (nBytesPerSample == sizeof(int16_t)) {
-    int16_samples = static_cast<const int16_t*>(audioSamples);
-  } else if (false && nBytesPerSample == sizeof(float)) {
-    if (float_convert_scratch_.size() < total_samples) {
-      float_convert_scratch_.resize(total_samples);
-    }
-    // WASAPI's IEEE-float mix format is normalized to [-1.0, 1.0], matching
-    // WebRTC's "Float" convention (not "FloatS16", which means [-32768,
-    // 32768]) - FloatToS16 is the correct converter here.
-    webrtc::FloatToS16(static_cast<const float*>(audioSamples), total_samples,
-                       float_convert_scratch_.data());
-    int16_samples = float_convert_scratch_.data();
-  } else {
+  // nBytesPerSample here is bytes PER INTERLEAVED FRAME (all channels
+  // combined), not bytes per individual channel value - confirmed via a raw
+  // sample dump: nBytesPerSample==4 with nChannels==2 decoded cleanly as
+  // ordinary quiet stereo int16 pairs (e.g. hex=0000ffff -> ch0=0, ch1=-1),
+  // never as sane float values. The original guard compared nBytesPerSample
+  // directly to sizeof(int16_t), which only ever holds for mono capture -
+  // any stereo device (extremely common) failed it on every single frame,
+  // permanently falling back to the uncontrolled bare Device source.
+  if (nBytesPerSample != nChannels * sizeof(int16_t)) {
     return;
   }
+  const int16_t* int16_samples = static_cast<const int16_t*>(audioSamples);
 
   GlobalRecordedAudioSink& global = global_recorded_audio_sink();
   // TryLock keeps the ADM capture thread wait-free: a frame dropped during an
