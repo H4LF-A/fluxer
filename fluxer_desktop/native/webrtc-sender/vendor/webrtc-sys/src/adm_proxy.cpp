@@ -28,6 +28,36 @@
 #include "sdk/android/native_api/base/init.h"
 #endif
 
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <string>
+
+namespace {
+// TEMPORARY diagnostic: appends a plain-text trail to
+// %TEMP%\fluxer-adm-native-status.log, independent of RTC_LOG (whose sink is
+// not known to reach anywhere the app's operator can retrieve) so the ADM
+// proxy's internal state can be checked directly against a live repro.
+// Safe to delete once the "no capture frames" investigation is done.
+void AdmNativeStatusLog(const char* message) {
+#if defined(_WIN32)
+  const char* temp_dir = std::getenv("TEMP");
+  if (!temp_dir) temp_dir = std::getenv("TMP");
+  if (!temp_dir) return;
+  std::string path = std::string(temp_dir) + "\\fluxer-adm-native-status.log";
+#else
+  const char* temp_dir = std::getenv("TMPDIR");
+  if (!temp_dir) temp_dir = "/tmp";
+  std::string path = std::string(temp_dir) + "/fluxer-adm-native-status.log";
+#endif
+  FILE* file = std::fopen(path.c_str(), "a");
+  if (!file) return;
+  std::time_t now = std::time(nullptr);
+  std::fprintf(file, "[%lld] %s\n", static_cast<long long>(now), message);
+  std::fclose(file);
+}
+}  // namespace
+
 namespace livekit_ffi {
 
 AdmProxy::AdmProxy(const webrtc::Environment& env, webrtc::Thread* worker_thread)
@@ -61,6 +91,9 @@ AdmProxy::AdmProxy(const webrtc::Environment& env, webrtc::Thread* worker_thread
   if (!EnsurePlatformAdmCreated()) {
     RTC_LOG(LS_WARNING)
         << "AdmProxy: Platform ADM unavailable at construction; will retry on demand";
+    AdmNativeStatusLog("AdmProxy::ctor: EnsurePlatformAdmCreated FAILED");
+  } else {
+    AdmNativeStatusLog("AdmProxy::ctor: EnsurePlatformAdmCreated succeeded");
   }
 #endif
 }
@@ -201,6 +234,13 @@ bool AdmProxy::AcquirePlatformAdm() {
 
   int old_ref_count = platform_adm_ref_count_;
   platform_adm_ref_count_++;
+  {
+    char buf[160];
+    std::snprintf(buf, sizeof(buf),
+                  "AdmProxy::AcquirePlatformAdm: ref_count %d -> %d, recording_enabled_=%d, recording_=%d",
+                  old_ref_count, platform_adm_ref_count_, recording_enabled_ ? 1 : 0, recording_ ? 1 : 0);
+    AdmNativeStatusLog(buf);
+  }
 
   // If this is the first acquisition and playout/recording is enabled,
   // we may need to switch from synthetic mode to platform ADM
@@ -337,6 +377,14 @@ int32_t AdmProxy::RegisterAudioCallback(webrtc::AudioTransport* transport) {
   webrtc::MutexLock lock(&mutex_);
   audio_transport_ = transport;
   recording_transport_proxy_.set_real_transport(transport);
+  {
+    char buf[160];
+    std::snprintf(buf, sizeof(buf),
+                  "AdmProxy::RegisterAudioCallback: transport=%p, platform_adm_=%p, synthetic_adm_=%p",
+                  static_cast<void*>(transport), static_cast<void*>(platform_adm_.get()),
+                  static_cast<void*>(synthetic_adm_.get()));
+    AdmNativeStatusLog(buf);
+  }
 
   // Register the interposing proxy with both ADMs so they're ready when we
   // switch modes. The proxy tees recorded frames and forwards to `transport`.
@@ -589,15 +637,31 @@ bool AdmProxy::Playing() const {
 
 int32_t AdmProxy::StartRecording() {
   webrtc::MutexLock lock(&mutex_);
+  {
+    char buf[200];
+    std::snprintf(
+        buf, sizeof(buf),
+        "AdmProxy::StartRecording: platform_adm_=%p, ref_count=%d, recording_enabled_=%d, audio_transport_=%p",
+        static_cast<void*>(platform_adm_.get()), platform_adm_ref_count_, recording_enabled_ ? 1 : 0,
+        static_cast<void*>(audio_transport_));
+    AdmNativeStatusLog(buf);
+  }
 
   auto* adm = recording_adm();
   if (!adm) {
     // Recording not available - return success to avoid breaking WebRTC
+    AdmNativeStatusLog("AdmProxy::StartRecording: recording_adm() returned NULL - silent no-op");
     return 0;
   }
 
   recording_ = true;
-  return adm->StartRecording();
+  int32_t result = adm->StartRecording();
+  {
+    char buf[96];
+    std::snprintf(buf, sizeof(buf), "AdmProxy::StartRecording: real adm->StartRecording() returned %d", result);
+    AdmNativeStatusLog(buf);
+  }
+  return result;
 }
 
 int32_t AdmProxy::StopRecording() {

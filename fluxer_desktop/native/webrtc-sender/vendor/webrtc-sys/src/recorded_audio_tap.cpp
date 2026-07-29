@@ -16,7 +16,12 @@
 
 #include "livekit/recorded_audio_tap.h"
 
+#include <atomic>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
 #include <optional>
+#include <string>
 #include <utility>
 
 #include "audio/remix_resample.h"
@@ -24,6 +29,29 @@
 #include "rtc_base/checks.h"
 #include "rtc_base/synchronization/mutex.h"
 #include "webrtc-sys/src/recorded_audio_tap.rs.h"
+
+namespace {
+// TEMPORARY diagnostic, mirrors the one in adm_proxy.cpp - see that file for
+// rationale. Safe to delete once the "no capture frames" investigation is done.
+void AdmNativeStatusLog(const char* message) {
+#if defined(_WIN32)
+  const char* temp_dir = std::getenv("TEMP");
+  if (!temp_dir) temp_dir = std::getenv("TMP");
+  if (!temp_dir) return;
+  std::string path = std::string(temp_dir) + "\\fluxer-adm-native-status.log";
+#else
+  const char* temp_dir = std::getenv("TMPDIR");
+  if (!temp_dir) temp_dir = "/tmp";
+  std::string path = std::string(temp_dir) + "/fluxer-adm-native-status.log";
+#endif
+  FILE* file = std::fopen(path.c_str(), "a");
+  if (!file) return;
+  std::time_t now = std::time(nullptr);
+  std::fprintf(file, "[%lld] %s\n", static_cast<long long>(now), message);
+  std::fclose(file);
+}
+std::atomic<bool> g_logged_first_tee_call{false};
+}  // namespace
 
 namespace livekit_ffi {
 
@@ -56,6 +84,12 @@ uint64_t set_recorded_audio_sink(rust::Box<RecordedAudioSinkWrapper> sink) {
   global.generation += 1;
   global.sink.emplace(std::move(sink));
   RTC_DCHECK(global.sink.has_value());
+  {
+    char buf[96];
+    std::snprintf(buf, sizeof(buf), "set_recorded_audio_sink: installed, generation=%llu",
+                  static_cast<unsigned long long>(global.generation));
+    AdmNativeStatusLog(buf);
+  }
   return global.generation;
 }
 
@@ -87,6 +121,14 @@ void RecordingTransportProxy::TeeRecordedData(const void* audioSamples,
                                               size_t nBytesPerSample,
                                               size_t nChannels,
                                               uint32_t samplesPerSec) {
+  if (!g_logged_first_tee_call.exchange(true)) {
+    char buf[220];
+    std::snprintf(buf, sizeof(buf),
+                  "TeeRecordedData: FIRST CALL EVER - audioSamples=%p nSamples=%zu nBytesPerSample=%zu "
+                  "nChannels=%zu samplesPerSec=%u",
+                  audioSamples, nSamples, nBytesPerSample, nChannels, samplesPerSec);
+    AdmNativeStatusLog(buf);
+  }
   if (audioSamples == nullptr) {
     return;
   }
