@@ -53,6 +53,7 @@ use livekit::webrtc::audio_frame::AudioFrame;
 use livekit::webrtc::audio_source::native::NativeAudioSource;
 use livekit::webrtc::audio_source::{AudioSourceOptions, RtcAudioSource};
 use livekit::webrtc::audio_stream::native::NativeAudioStream;
+use livekit::webrtc::native::apm::AudioProcessingModule;
 use livekit::webrtc::peer_connection_factory::PeerConnectionFactory;
 use livekit::webrtc::peer_connection_factory::native::PeerConnectionFactoryExt;
 use livekit::webrtc::prelude::RtcAudioTrack;
@@ -493,17 +494,37 @@ impl DeepFilterDiagnostics {
     }
 }
 
-// deep_filter_level: Some(level) runs the ML deep filter on every captured
-// frame before republishing; None passes frames through unchanged. The
-// passthrough mode exists because RtcAudioSource::Device (the plain
-// non-deep-filter microphone path) has no way to configure WebRTC's software
-// AEC/NS/AGC at all - configure_audio_processing() only toggles *hardware*
-// processing, which is never available on desktop, so it's a no-op there.
-// Routing plain captures through this same manual pipe with an explicit
-// AudioSourceOptions lets the user's actual echo/noise/AGC choices reach the
-// real software APM, which Device-sourced tracks otherwise ignore entirely.
+// Selects what happens to each captured mic frame before it's republished.
+// Passthrough matches "none" (no processing at all). StandardApm runs
+// WebRTC's real software AEC3/NS/AGC via the vendored AudioProcessingModule.
+// This exists because neither RtcAudioSource::Device nor the AudioSourceOptions
+// passed to NativeAudioSource ever route audio through WebRTC's APM when
+// frames are captured manually like this: the tap in recorded_audio_tap.cpp
+// intercepts raw samples ahead of the real AudioTransport (and therefore
+// ahead of the shared APM it owns), and AudioTrackSource (audio_track.cpp)
+// only stores AudioSourceOptions as inert metadata - it never runs any
+// processing on frames pushed via capture_frame(). Without running our own
+// APM instance here, "standard" noise suppression was a silent no-op,
+// indistinguishable from "none". DeepFilter runs the ML noise suppression
+// model instead of the built-in APM.
+enum MicPipeProcessing {
+    Passthrough,
+    StandardApm {
+        echo_cancellation: bool,
+        noise_suppression: bool,
+        auto_gain_control: bool,
+    },
+    DeepFilter(f64),
+}
+
+enum MicFrameTransform {
+    Passthrough,
+    StandardApm(AudioProcessingModule),
+    DeepFilter(DeepFilterProcessor),
+}
+
 fn spawn_deep_filter_processing_thread(
-    deep_filter_level: Option<f64>,
+    processing: MicPipeProcessing,
     source: NativeAudioSource,
     stop: Arc<AtomicBool>,
     diagnostics: DeepFilterDiagnostics,
@@ -515,27 +536,37 @@ fn spawn_deep_filter_processing_thread(
     std::thread::Builder::new()
         .name("fluxer-mic-capture-pipe".to_string())
         .spawn(move || {
-            let processor = match deep_filter_level {
-                Some(level) => match DeepFilterProcessor::new(level) {
-                    Ok(processor) => Some(processor),
+            let transform = match processing {
+                MicPipeProcessing::Passthrough => MicFrameTransform::Passthrough,
+                MicPipeProcessing::StandardApm {
+                    echo_cancellation,
+                    noise_suppression,
+                    auto_gain_control,
+                } => MicFrameTransform::StandardApm(AudioProcessingModule::new(
+                    echo_cancellation,
+                    auto_gain_control,
+                    echo_cancellation || noise_suppression || auto_gain_control,
+                    noise_suppression,
+                )),
+                MicPipeProcessing::DeepFilter(level) => match DeepFilterProcessor::new(level) {
+                    Ok(processor) => MicFrameTransform::DeepFilter(processor),
                     Err(error) => {
                         let _ = ready_sender.send(Err(error));
                         return;
                     }
                 },
-                None => None,
             };
             if ready_sender.send(Ok(())).is_err() {
                 return;
             }
-            run_deep_filter_processing(processor, source, stop, diagnostics, frame_receiver);
+            run_deep_filter_processing(transform, source, stop, diagnostics, frame_receiver);
         })
         .map_err(|error| format!("spawn mic capture pipe thread: {error}"))?;
     Ok(ready_receiver)
 }
 
 fn run_deep_filter_processing(
-    mut processor: Option<DeepFilterProcessor>,
+    mut transform: MicFrameTransform,
     source: NativeAudioSource,
     stop: Arc<AtomicBool>,
     diagnostics: DeepFilterDiagnostics,
@@ -550,7 +581,7 @@ fn run_deep_filter_processing(
         match received {
             Ok(mut frame) => {
                 process_and_capture_deep_filter_frame(
-                    processor.as_mut(),
+                    &mut transform,
                     &source,
                     &diagnostics,
                     &mut frame.samples,
@@ -660,16 +691,28 @@ mod raw_capture_dump {
 }
 
 fn process_and_capture_deep_filter_frame(
-    processor: Option<&mut DeepFilterProcessor>,
+    transform: &mut MicFrameTransform,
     source: &NativeAudioSource,
     diagnostics: &DeepFilterDiagnostics,
     samples: &mut [i16; deep_filter::DEEP_FILTER_FRAME_SAMPLES],
 ) {
     assert_eq!(samples.len(), deep_filter::DEEP_FILTER_FRAME_SAMPLES);
     raw_capture_dump::maybe_record_raw_frame(samples);
-    if let Some(processor) = processor {
-        if let Err(error) = processor.process_frame(samples) {
-            diagnostics.record_degraded_frame(&error);
+    match transform {
+        MicFrameTransform::Passthrough => {}
+        MicFrameTransform::StandardApm(apm) => {
+            if let Err(error) = apm.process_stream(
+                &mut samples[..],
+                deep_filter::DEEP_FILTER_SAMPLE_RATE_HZ as i32,
+                deep_filter::DEEP_FILTER_NUM_CHANNELS as i32,
+            ) {
+                diagnostics.record_degraded_frame(&format!("standard apm: {error}"));
+            }
+        }
+        MicFrameTransform::DeepFilter(processor) => {
+            if let Err(error) = processor.process_frame(samples) {
+                diagnostics.record_degraded_frame(&error);
+            }
         }
     }
     let processed = AudioFrame {
@@ -2755,7 +2798,7 @@ impl VoiceEngine {
                 .unwrap_or(audio::DEEP_FILTER_NOISE_REDUCTION_LEVEL_MAX);
             self.try_start_mic_capture_pipe(
                 &platform_audio,
-                Some(noise_reduction_level),
+                MicPipeProcessing::DeepFilter(noise_reduction_level),
                 AudioSourceOptions {
                     echo_cancellation: false,
                     noise_suppression: false,
@@ -2786,21 +2829,35 @@ impl VoiceEngine {
             ))
             .map_err(|e| napi::Error::from_reason(format!("configure audio processing: {e}")))?;
         // If deep filter wasn't requested, or it was requested but failed to
-        // start above, route through the same manual capture pipe with the
-        // user's actual echo/noise/AGC choices so they reach the real
-        // software APM - RtcAudioSource::Device has no way to configure this
-        // at all and always uses libwebrtc's fixed defaults.
+        // start above, route through the same manual capture pipe and run our
+        // own AudioProcessingModule on the tapped frames so the user's actual
+        // echo/noise/AGC choices reach real software processing -
+        // RtcAudioSource::Device has no way to configure this at all, and
+        // AudioSourceOptions on the manual-capture NativeAudioSource is inert
+        // metadata that no processing step ever reads (see MicPipeProcessing).
         let mic_pipe = match deep_filter_mic {
             Some(mic) => Some(mic),
             None => {
                 self.set_device_mic_recording_requested(true);
+                let echo_cancellation = apm_intent.echo_cancellation.unwrap_or(true);
+                let noise_suppression = apm_intent.noise_suppression.unwrap_or(true);
+                let auto_gain_control = apm_intent.auto_gain_control.unwrap_or(true);
+                let processing = if echo_cancellation || noise_suppression || auto_gain_control {
+                    MicPipeProcessing::StandardApm {
+                        echo_cancellation,
+                        noise_suppression,
+                        auto_gain_control,
+                    }
+                } else {
+                    MicPipeProcessing::Passthrough
+                };
                 self.try_start_mic_capture_pipe(
                     &platform_audio,
-                    None,
+                    processing,
                     AudioSourceOptions {
-                        echo_cancellation: apm_intent.echo_cancellation.unwrap_or(true),
-                        noise_suppression: apm_intent.noise_suppression.unwrap_or(true),
-                        auto_gain_control: apm_intent.auto_gain_control.unwrap_or(true),
+                        echo_cancellation,
+                        noise_suppression,
+                        auto_gain_control,
                     },
                     false,
                 )
@@ -2830,7 +2887,7 @@ impl VoiceEngine {
 
     fn build_mic_capture_pipe(
         &self,
-        deep_filter_level: Option<f64>,
+        processing: MicPipeProcessing,
         apm_options: AudioSourceOptions,
     ) -> Result<DeepFilterPipeParts, String> {
         let source = NativeAudioSource::new(
@@ -2848,7 +2905,7 @@ impl VoiceEngine {
         let (frame_sender, frame_receiver) =
             mpsc::sync_channel::<DeepFilterCaptureFrame>(DEEP_FILTER_PIPE_QUEUE_FRAMES);
         let ready = spawn_deep_filter_processing_thread(
-            deep_filter_level,
+            processing,
             source.clone(),
             stop.clone(),
             diagnostics.clone(),
@@ -2863,15 +2920,15 @@ impl VoiceEngine {
         })
     }
 
-    // is_deep_filter selects both the ML transform (deep_filter_level) and
+    // is_deep_filter selects both the ML transform (via processing) and
     // whether "deepFilterStatus" events are emitted - the plain/passthrough
-    // mode reuses this same pipe purely to get real APM control over
-    // RtcAudioSource::Device, and must not report itself as deep filter
-    // activity to the renderer.
+    // and standard-APM modes reuse this same pipe purely to get real APM
+    // control over RtcAudioSource::Device, and must not report themselves as
+    // deep filter activity to the renderer.
     async fn try_start_mic_capture_pipe(
         &self,
         platform_audio: &PlatformAudio,
-        deep_filter_level: Option<f64>,
+        processing: MicPipeProcessing,
         apm_options: AudioSourceOptions,
         is_deep_filter: bool,
     ) -> Option<DeepFilterMicrophone> {
@@ -2889,7 +2946,7 @@ impl VoiceEngine {
             diagnostics,
             frame_sender,
             ready,
-        } = match self.build_mic_capture_pipe(deep_filter_level, apm_options) {
+        } = match self.build_mic_capture_pipe(processing, apm_options) {
             Ok(parts) => parts,
             Err(error) => {
                 mic_pipe_status_log::record(&format!("FAILED at build_mic_capture_pipe: {error}"), is_deep_filter);
