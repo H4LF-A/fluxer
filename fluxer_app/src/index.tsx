@@ -24,6 +24,7 @@ import {
 } from '@app/features/platform/utils/ClientInfo';
 import {loadLazyModule} from '@app/features/platform/utils/LazyModuleLoader';
 import {initializeNativeVoiceEngineSelectionForStartup} from '@app/features/voice/engine/native_voice_engine/NativeVoiceEngineSelection';
+import {voiceDeviceManager} from '@app/features/voice/utils/VoiceDeviceManager';
 import {i18n} from '@lingui/core';
 import {I18nProvider} from '@lingui/react';
 import {configure} from 'mobx';
@@ -128,6 +129,11 @@ async function bootstrapThemeStudio(): Promise<void> {
 
 async function bootstrapApp(): Promise<void> {
 	await initializeNativeVoiceEngineSelectionForStartup();
+	// On desktop the native ADM is already warm by this point (the await
+	// above waits for it), and native device enumeration needs no permission
+	// prompt at all - so the device list can be populated now instead of
+	// waiting for Voice Settings to open or a call to start.
+	void voiceDeviceManager.ensureDevices({requestPermissions: false});
 	const [
 		{App},
 		authenticationCommands,
