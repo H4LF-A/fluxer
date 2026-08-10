@@ -307,11 +307,7 @@ function getDesktopSourceDimensions(source: DesktopSource): {width: number; heig
 }
 
 function canUseNativeCaptureForLastSourceCodec(nativeScreenShareCodec: VideoCodec): boolean {
-	const preferredScreenShareCodecPreference = VoiceSettings.getPreferredScreenShareCodec();
-	return (
-		preferredScreenShareCodecPreference === 'auto' ||
-		shouldUseNativeScreenCaptureForScreenShareCodec(nativeScreenShareCodec)
-	);
+	return shouldUseNativeScreenCaptureForScreenShareCodec(nativeScreenShareCodec);
 }
 
 async function findNativeCaptureSourceForLastDesktopSource(
@@ -974,9 +970,7 @@ const ScreenSharePickerModalLoadedContent = observer(
 			() => ScreenShareCodecNegotiation.selectNativeScreenShareCodec(preferredScreenShareCodecPreference),
 			[preferredScreenShareCodecPreference],
 		);
-		const canUseNativeCaptureForCodec =
-			preferredScreenShareCodecPreference === 'auto' ||
-			shouldUseNativeScreenCaptureForScreenShareCodec(nativeScreenShareCodec);
+		const canUseNativeCaptureForCodec = shouldUseNativeScreenCaptureForScreenShareCodec(nativeScreenShareCodec);
 		const activeDesktopSourceThumbnailStateKey = useMemo(() => {
 			if (activeTab === 'devices') {
 				return null;
