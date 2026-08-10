@@ -217,6 +217,19 @@ function buildReport(): CodecCapabilityReport {
 		if (hasNativeHardwareEncoder(codec)) {
 			return 'hardware';
 		}
+		// The native probe is authoritative for h264/h265 (the only codecs it
+		// actually checks - see hasVoiceEngineV2NativeHardwareEncoder) once it
+		// has genuinely run (nativeHardwareEncoder !== null means we're on
+		// desktop and got a real answer, not "haven't checked yet"). Falling
+		// through to the static gpuReport table below in that case is what
+		// caused screen share to pick h265: gpuReport is a GPU-family lookup
+		// keyed only on PCI vendor/device ID, so it optimistically reports
+		// hardware HEVC for most NVIDIA cards even when the actual NVENC
+		// runtime (nvcuda.dll/nvEncodeAPI64.dll) the native encoder needs is
+		// missing - exactly what the real probe above just correctly detected.
+		if (nativeHardwareEncoder && (codec === 'h264' || codec === 'h265')) {
+			return 'software';
+		}
 		const gpu = gpuReport ? gpuReport[codec] : 'unknown';
 		if (codec === 'h264' && openH264Active && gpu === 'unknown') {
 			return 'software';

@@ -64,6 +64,7 @@ export function useMemberListSubscription({
 	);
 	const lastSessionVersionRef = useRef(MemberSidebar.sessionVersion);
 	const lastGatewayReadyRef = useRef(GatewayConnection.isReady);
+	const lastGuildSyncCompletedRef = useRef(GatewayConnection.hasCompletedGuildSync(guildId));
 	const hadChannelListRef = useRef(MemberSidebar.getList(guildId, channelId) !== undefined);
 	const retryTimerRef = useRef<number | null>(null);
 	const ownerIdRef = useRef(createMemberListSubscriptionOwnerId());
@@ -194,6 +195,7 @@ export function useMemberListSubscription({
 		});
 		lastSessionVersionRef.current = MemberSidebar.sessionVersion;
 		lastGatewayReadyRef.current = GatewayConnection.isReady;
+		lastGuildSyncCompletedRef.current = GatewayConnection.hasCompletedGuildSync(guildId);
 		hadChannelListRef.current = MemberSidebar.getList(guildId, channelId) !== undefined;
 		clearRetryTimer();
 	}, [guildId, channelId, clearRetryTimer, sendSubscriptionEvent]);
@@ -231,6 +233,20 @@ export function useMemberListSubscription({
 				}
 			},
 		);
+		const disposeGuildSyncReaction = reaction(
+			() => GatewayConnection.hasCompletedGuildSync(guildId),
+			(isSynced) => {
+				const wasSynced = lastGuildSyncCompletedRef.current;
+				lastGuildSyncCompletedRef.current = isSynced;
+				if (!enabled) {
+					return;
+				}
+				if (isSynced && !wasSynced && readSubscriptionModel().isActive) {
+					MemberSidebar.claimMemberListSubscription(guildId, channelId, ownerId);
+					attemptSubscribe(readSubscriptionModel().desiredRanges, true);
+				}
+			},
+		);
 		const disposeGuildListReaction = reaction(
 			() => MemberSidebar.getList(guildId, channelId) !== undefined,
 			(hasChannelList) => {
@@ -248,6 +264,7 @@ export function useMemberListSubscription({
 		return () => {
 			disposeSessionReaction();
 			disposeGatewayReadyReaction();
+			disposeGuildSyncReaction();
 			disposeGuildListReaction();
 		};
 	}, [
