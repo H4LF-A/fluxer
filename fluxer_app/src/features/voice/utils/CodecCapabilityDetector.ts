@@ -470,19 +470,13 @@ export function selectNativeScreenCaptureScreenShareCodec(preference: CodecPrefe
 }
 
 export function shouldUseNativeScreenCaptureForScreenShareCodec(_codec: VideoCodec): boolean {
-	// Windows' native capture pipeline (win-game-capture -> D3D11 texture ->
-	// NVENC bridge) has no working Windows GPU-texture encode path -
-	// native_gpu_encode_bridge.cpp's TryEncodeNativeGpuFrame is Linux-only,
-	// and the CPU fallback (PrepareNv12HostFrame) also always fails for these
-	// buffers since FluxerGpuFrameBuffer::ToI420() is a deliberate stub. Every
-	// frame fails to encode, producing a solid green screen for viewers -
-	// this only reaches NVIDIA users, since hardware_encoder_capability()
-	// requires a working NVENC probe. Defaulting to false on Windows routes
-	// screen share through desktopCapturer/getDisplayMedia instead - the same
-	// path the plain web client already uses successfully, which also gets
-	// Chromium's own DesktopAndCursorComposer cursor compositing instead of
-	// Windows Graphics Capture's documented cursor-invisibility bug.
-	if (isDesktop() && guessPlatform() === 'windows') return false;
+	// Windows native screen capture previously green-screened because the
+	// GPU-texture encode path had no working Windows encoder (NVENC-only,
+	// broken D3D11 interop). That's now fixed via a vendor-neutral Media
+	// Foundation Transform hardware encoder plus a real CPU fallback, so
+	// there's no longer a reason to route Windows screen share away from the
+	// native capture path - doing so instead hits a separate, pre-existing ID
+	// resolution bug in the desktopCapturer-fallback reconnect path.
 	return true;
 }
 
