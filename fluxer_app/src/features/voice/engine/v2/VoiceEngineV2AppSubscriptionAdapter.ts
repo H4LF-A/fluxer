@@ -72,6 +72,15 @@ function isExpectedNativeScreenShareAudioPublicationRace(
 	return isMissingNativeSubscriptionTarget(error);
 }
 
+function isExpectedNativeScreenShareVideoPublicationRace(
+	options: VoiceMediaGraphRemoteSubscriptionCommand,
+	error: unknown,
+): boolean {
+	if (!options.subscribed) return false;
+	if (options.source !== VoiceTrackSource.ScreenShare) return false;
+	return isMissingNativeSubscriptionTarget(error);
+}
+
 class VoiceEngineV2AppSubscriptionAdapter extends Store {
 	private room: Room | null = null;
 	private videoManager = new VideoSubscriptionManager();
@@ -149,6 +158,9 @@ class VoiceEngineV2AppSubscriptionAdapter extends Store {
 			logger.debug('Native remote camera subscription target missing; will retry after publish', logData);
 		} else if (isExpectedNativeScreenShareAudioPublicationRace(options, error)) {
 			logger.debug('Native remote screen-share audio subscription target missing; will retry after publish', logData);
+			return;
+		} else if (isExpectedNativeScreenShareVideoPublicationRace(options, error)) {
+			logger.debug('Native remote screen-share video subscription target missing; will retry after publish', logData);
 			return;
 		} else {
 			logger.warn('Native remote track subscription update failed', logData);
