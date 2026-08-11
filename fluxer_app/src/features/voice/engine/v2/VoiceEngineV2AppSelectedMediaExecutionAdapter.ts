@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import {Logger} from '@app/features/platform/utils/AppLogger';
+import {resolveVoiceEngineV2AppSelectedDisplayScreenShareMediaMode} from '@app/features/voice/engine/v2/VoiceEngineV2AppSelectedMediaMode';
 import type {
 	LiveKitMediaPort,
 	VoiceEngineV2CameraEncodingOptions,
@@ -16,6 +17,14 @@ import type {
 } from '@fluxer/voice_engine_v2';
 
 const ADAPTER_NAME = 'VoiceEngineV2AppSelectedMediaExecutionAdapter';
+
+const SCREEN_SHARE_DISPLAY_METHODS = new Set([
+	'publishScreen',
+	'unpublishScreen',
+	'updateScreenEncoding',
+	'publishScreenAudio',
+	'unpublishScreenAudio',
+]);
 
 export type VoiceEngineV2AppSelectedMediaMode = 'js' | 'native';
 
@@ -112,7 +121,9 @@ export class VoiceEngineV2AppSelectedMediaExecutionAdapter implements LiveKitMed
 	}
 
 	private selectedMedia(method: string): LiveKitMediaPort {
-		const mode = this.getMode();
+		const mode = SCREEN_SHARE_DISPLAY_METHODS.has(method)
+			? resolveVoiceEngineV2AppSelectedDisplayScreenShareMediaMode()
+			: this.getMode();
 		if (mode !== this.lastMode) {
 			this.lastMode = mode;
 			this.logger.info('Selected voice media port changed', {mode, method});

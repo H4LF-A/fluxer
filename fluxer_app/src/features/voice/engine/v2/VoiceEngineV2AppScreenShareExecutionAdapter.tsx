@@ -52,7 +52,10 @@ import {
 	type VoiceScreenShareStateOptions,
 } from '@app/features/voice/engine/v2/VoiceEngineV2AppScreenShareStateSync';
 import {VoiceEngineV2AppScreenShareTrackPlumbing} from '@app/features/voice/engine/v2/VoiceEngineV2AppScreenShareTrackPlumbing';
-import {routeVoiceEngineV2AppSelectedMedia} from '@app/features/voice/engine/v2/VoiceEngineV2AppSelectedMediaMode';
+import {
+	resolveVoiceEngineV2AppSelectedDisplayScreenShareMediaMode,
+	routeVoiceEngineV2AppSelectedMedia,
+} from '@app/features/voice/engine/v2/VoiceEngineV2AppSelectedMediaMode';
 import type {VoiceEngineV2AppSourceLifecycleBridge} from '@app/features/voice/engine/v2/VoiceEngineV2AppSourceLifecycleBridge';
 import type {NativeScreenShareOptions} from '@app/features/voice/engine/voice_screen_share_manager/DisplayMediaCapture';
 import type {NativeEngineAudioTrackFrame} from '@app/features/voice/engine/voice_screen_share_manager/NativeEngineAudioTrackPump';
@@ -632,14 +635,17 @@ class VoiceEngineV2AppScreenShareExecutionAdapter extends Store {
 		snapshot: ScreenShareReconnectSnapshot,
 		publishOptions?: TrackPublishOptions,
 	): Promise<boolean> {
-		return routeVoiceEngineV2AppSelectedMedia({
-			js: () => this.liveKitFlows.restoreReconnect(room, snapshot, publishOptions),
-			native: async () => {
-				throw buildNativeScreenSharePublicationError(
-					'Native voice engine selected; refusing browser screen-share reconnect publication',
-				);
+		return routeVoiceEngineV2AppSelectedMedia(
+			{
+				js: () => this.liveKitFlows.restoreReconnect(room, snapshot, publishOptions),
+				native: async () => {
+					throw buildNativeScreenSharePublicationError(
+						'Native voice engine selected; refusing browser screen-share reconnect publication',
+					);
+				},
 			},
-		});
+			resolveVoiceEngineV2AppSelectedDisplayScreenShareMediaMode(),
+		);
 	}
 
 	async cleanupLingeringScreenShareTracks(
@@ -808,21 +814,24 @@ class VoiceEngineV2AppScreenShareExecutionAdapter extends Store {
 	): Promise<void> {
 		assert.equal(typeof enabled, 'boolean');
 		const selection = selectScreenShareSetEnabledOptions(options);
-		await routeVoiceEngineV2AppSelectedMedia({
-			js: () =>
-				this.liveKitFlows.setEnabled(
-					room,
-					enabled,
-					{
-						...selection.captureOptions,
-						sendUpdate: selection.sendUpdate,
-						playSound: selection.playSound,
-						restartIfEnabled: selection.restartIfEnabled,
-					},
-					publishOptions,
-				),
-			native: () => this.setNativeSelectedScreenShareEnabled(enabled, selection, publishOptions),
-		});
+		await routeVoiceEngineV2AppSelectedMedia(
+			{
+				js: () =>
+					this.liveKitFlows.setEnabled(
+						room,
+						enabled,
+						{
+							...selection.captureOptions,
+							sendUpdate: selection.sendUpdate,
+							playSound: selection.playSound,
+							restartIfEnabled: selection.restartIfEnabled,
+						},
+						publishOptions,
+					),
+				native: () => this.setNativeSelectedScreenShareEnabled(enabled, selection, publishOptions),
+			},
+			resolveVoiceEngineV2AppSelectedDisplayScreenShareMediaMode(),
+		);
 	}
 
 	async startDeviceScreenShare(
@@ -845,13 +854,16 @@ class VoiceEngineV2AppScreenShareExecutionAdapter extends Store {
 		options?: ScreenShareCaptureOptions,
 		publishOptions?: TrackPublishOptions,
 	): Promise<boolean> {
-		return routeVoiceEngineV2AppSelectedMedia({
-			js: () => this.liveKitFlows.replaceActiveDisplayShare(room, options, publishOptions),
-			native: async () => {
-				await this.assertNativeScreenShareBridgeAvailable('desktop screen-share source switch');
-				return this.captureCoordinator.replaceActiveDisplayFromActiveSource(options, publishOptions);
+		return routeVoiceEngineV2AppSelectedMedia(
+			{
+				js: () => this.liveKitFlows.replaceActiveDisplayShare(room, options, publishOptions),
+				native: async () => {
+					await this.assertNativeScreenShareBridgeAvailable('desktop screen-share source switch');
+					return this.captureCoordinator.replaceActiveDisplayFromActiveSource(options, publishOptions);
+				},
 			},
-		});
+			resolveVoiceEngineV2AppSelectedDisplayScreenShareMediaMode(),
+		);
 	}
 
 	async replaceActiveDeviceScreenShare(
@@ -1061,24 +1073,27 @@ class VoiceEngineV2AppScreenShareExecutionAdapter extends Store {
 
 	setScreenShareAudioMuted(room: Room | null, muted: boolean): void {
 		assert.equal(typeof muted, 'boolean');
-		void routeVoiceEngineV2AppSelectedMedia({
-			js: async () => {
-				const participant = room?.localParticipant;
-				if (!participant) return;
-				const publication = participant.getTrackPublication(Track.Source.ScreenShareAudio);
-				if (!publication) return;
-				const operation = muted ? publication.mute() : publication.unmute();
-				operation.catch((error) => {
-					logger.warn('Failed to apply immediate screen share audio mute', {error, muted});
-				});
-				this.syncLocalScreenShareAudioStateInternal(participant, !muted);
+		void routeVoiceEngineV2AppSelectedMedia(
+			{
+				js: async () => {
+					const participant = room?.localParticipant;
+					if (!participant) return;
+					const publication = participant.getTrackPublication(Track.Source.ScreenShareAudio);
+					if (!publication) return;
+					const operation = muted ? publication.mute() : publication.unmute();
+					operation.catch((error) => {
+						logger.warn('Failed to apply immediate screen share audio mute', {error, muted});
+					});
+					this.syncLocalScreenShareAudioStateInternal(participant, !muted);
+				},
+				native: async () => {
+					await this.captureCoordinator.updateActiveSettings(room, {audio: !muted}).catch((error) => {
+						logger.warn('Failed to apply native-engine screen share audio mute', {error, muted});
+					});
+				},
 			},
-			native: async () => {
-				await this.captureCoordinator.updateActiveSettings(room, {audio: !muted}).catch((error) => {
-					logger.warn('Failed to apply native-engine screen share audio mute', {error, muted});
-				});
-			},
-		});
+			resolveVoiceEngineV2AppSelectedDisplayScreenShareMediaMode(),
+		);
 	}
 
 	async toggleScreenShareFromKeybind(room: Room | null): Promise<void> {
