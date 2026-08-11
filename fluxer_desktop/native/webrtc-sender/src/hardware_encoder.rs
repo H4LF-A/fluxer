@@ -338,7 +338,7 @@ pub fn hardware_encoder_capability() -> HardwareEncoderCapability {
         }
         _ => false,
     };
-    describe_capability(
+    let nvenc_capability = describe_capability(
         platform,
         compiled,
         if compiled {
@@ -346,7 +346,56 @@ pub fn hardware_encoder_capability() -> HardwareEncoderCapability {
         } else {
             None
         },
-    )
+    );
+    if nvenc_capability.available {
+        return nvenc_capability;
+    }
+    // Windows-only, vendor-neutral fallback: NVENC didn't pan out (not
+    // compiled, or the CUDA/NVENC-specific runtime probe failed - e.g. an
+    // AMD/Intel GPU, or an NVIDIA GPU without NVENC hardware), so check for
+    // a hardware H.264 Media Foundation Transform instead. Every driver
+    // vendor registers one via MFTEnumEx, so this covers cases NVENC alone
+    // cannot. Falls back to reporting the (unavailable) NVENC result
+    // unchanged if MFT isn't available either, preserving today's
+    // reason/detail messaging for that case.
+    if platform == CapabilityPlatform::Windows {
+        if let Some(mft_capability) = describe_mft_capability() {
+            return mft_capability;
+        }
+    }
+    nvenc_capability
+}
+
+#[cfg(all(target_os = "windows", feature = "publisher"))]
+fn probe_mft_runtime() -> bool {
+    webrtc_sys::video_frame_buffer::ffi::mft_encoder_is_supported()
+}
+
+#[cfg(not(all(target_os = "windows", feature = "publisher")))]
+fn probe_mft_runtime() -> bool {
+    false
+}
+
+fn describe_mft_capability() -> Option<HardwareEncoderCapability> {
+    if !probe_mft_runtime() {
+        return None;
+    }
+    Some(HardwareEncoderCapability {
+        available: true,
+        backend: "mft".to_string(),
+        compiled: true,
+        runtime: true,
+        codecs: vec!["h264".to_string()],
+        zero_copy: true,
+        native_inputs: vec!["d3d11_texture".to_string()],
+        reason: None,
+        detail: Some(
+            "A hardware H.264 Media Foundation Transform (MFT) encoder is registered on this \
+             system (NVIDIA/AMD/Intel driver-provided); used because the NVENC-specific probe \
+             did not succeed."
+                .to_string(),
+        ),
+    })
 }
 
 pub fn require_publish_codec_runtime_support(canonical_codec: &str) -> Result<(), String> {

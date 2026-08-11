@@ -17,13 +17,174 @@
 #include "livekit/video_frame_buffer.h"
 
 #include "api/make_ref_counted.h"
+#include "api/video/i420_buffer.h"
 #include "rtc_base/logging.h"
+#include "third_party/libyuv/include/libyuv/convert.h"
 
 #if defined(__linux__)
 #include <unistd.h>
 #endif
 
+#if defined(_WIN32)
+#include <d3d11.h>
+#include <dxgi.h>
+#include <wrl/client.h>
+
+#include <mutex>
+#endif
+
+#if defined(USE_MFT_VIDEO_ENCODER)
+#include "mft/mft_encoder_factory.h"
+#endif
+
 namespace livekit_ffi {
+
+#if defined(_WIN32)
+namespace {
+
+using Microsoft::WRL::ComPtr;
+
+// Lazily creates a process-wide D3D11 device used only to CPU-map shared
+// D3D11 textures for the ToI420() fallback path. This is intentionally a
+// plain default-adapter device (matching win-game-capture's own unpinned
+// adapter selection for WGC) - OpenSharedResource() below will simply fail
+// gracefully if the frame's texture lives on a different adapter (hybrid-GPU
+// systems), which this fallback treats as "no frame" rather than crashing.
+bool EnsureCpuReadbackDevice(ComPtr<ID3D11Device>* device,
+                             ComPtr<ID3D11DeviceContext>* context) {
+  static ComPtr<ID3D11Device> s_device;
+  static ComPtr<ID3D11DeviceContext> s_context;
+  static bool s_init_attempted = false;
+  static std::mutex s_mutex;
+
+  std::lock_guard<std::mutex> lock(s_mutex);
+  if (!s_init_attempted) {
+    s_init_attempted = true;
+    D3D_FEATURE_LEVEL feature_level = {};
+    HRESULT hr = D3D11CreateDevice(
+        nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0,
+        D3D11_SDK_VERSION, s_device.GetAddressOf(), &feature_level,
+        s_context.GetAddressOf());
+    if (FAILED(hr)) {
+      RTC_LOG(LS_WARNING) << "Fluxer GPU frame CPU fallback: failed to "
+                             "create D3D11 readback device, hr="
+                          << hr;
+      s_device.Reset();
+      s_context.Reset();
+    } else {
+      // Allow this device/context to be safely used from whatever thread
+      // calls ToI420() (e.g. an encoder thread different from the capture
+      // thread) without us hand-rolling per-call locking around every
+      // CopyResource/Map/Unmap.
+      ComPtr<ID3D10Multithread> multithread;
+      if (SUCCEEDED(s_context.As(&multithread))) {
+        multithread->SetMultithreadProtected(TRUE);
+      }
+    }
+  }
+  if (!s_device || !s_context) {
+    return false;
+  }
+  *device = s_device;
+  *context = s_context;
+  return true;
+}
+
+webrtc::scoped_refptr<webrtc::I420BufferInterface> ConvertD3D11TextureToI420(
+    uint64_t handle,
+    uint32_t width,
+    uint32_t height) {
+  ComPtr<ID3D11Device> device;
+  ComPtr<ID3D11DeviceContext> context;
+  if (!EnsureCpuReadbackDevice(&device, &context)) {
+    return nullptr;
+  }
+
+  ComPtr<ID3D11Texture2D> source_texture;
+  HRESULT hr = device->OpenSharedResource(
+      reinterpret_cast<HANDLE>(static_cast<uintptr_t>(handle)),
+      IID_PPV_ARGS(source_texture.GetAddressOf()));
+  if (FAILED(hr) || !source_texture) {
+    RTC_LOG(LS_WARNING)
+        << "Fluxer GPU frame CPU fallback: OpenSharedResource failed, hr="
+        << hr
+        << " (likely a cross-adapter shared handle on a hybrid-GPU system)";
+    return nullptr;
+  }
+
+  D3D11_TEXTURE2D_DESC source_desc = {};
+  source_texture->GetDesc(&source_desc);
+  if (source_desc.Format != DXGI_FORMAT_NV12 &&
+      source_desc.Format != DXGI_FORMAT_B8G8R8A8_UNORM) {
+    RTC_LOG(LS_WARNING)
+        << "Fluxer GPU frame CPU fallback: unsupported DXGI format "
+        << source_desc.Format;
+    return nullptr;
+  }
+
+  D3D11_TEXTURE2D_DESC staging_desc = source_desc;
+  staging_desc.Usage = D3D11_USAGE_STAGING;
+  staging_desc.BindFlags = 0;
+  staging_desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+  staging_desc.MiscFlags = 0;
+
+  ComPtr<ID3D11Texture2D> staging_texture;
+  hr = device->CreateTexture2D(&staging_desc, nullptr,
+                               staging_texture.GetAddressOf());
+  if (FAILED(hr) || !staging_texture) {
+    RTC_LOG(LS_WARNING) << "Fluxer GPU frame CPU fallback: CreateTexture2D "
+                           "(staging) failed, hr="
+                        << hr;
+    return nullptr;
+  }
+
+  context->CopyResource(staging_texture.Get(), source_texture.Get());
+
+  D3D11_MAPPED_SUBRESOURCE mapped = {};
+  hr = context->Map(staging_texture.Get(), 0, D3D11_MAP_READ, 0, &mapped);
+  if (FAILED(hr)) {
+    RTC_LOG(LS_WARNING) << "Fluxer GPU frame CPU fallback: Map failed, hr="
+                        << hr;
+    return nullptr;
+  }
+
+  const int int_width = static_cast<int>(width);
+  const int int_height = static_cast<int>(height);
+  const int stride_uv = (int_width + 1) / 2;
+  webrtc::scoped_refptr<webrtc::I420Buffer> i420 = webrtc::I420Buffer::Create(
+      int_width, int_height, int_width, stride_uv, stride_uv);
+
+  int convert_result = -1;
+  if (source_desc.Format == DXGI_FORMAT_NV12) {
+    const uint8_t* src_y = static_cast<const uint8_t*>(mapped.pData);
+    const uint8_t* src_uv = src_y + mapped.RowPitch * source_desc.Height;
+    convert_result = libyuv::NV12ToI420(
+        src_y, static_cast<int>(mapped.RowPitch), src_uv,
+        static_cast<int>(mapped.RowPitch), i420->MutableDataY(),
+        i420->StrideY(), i420->MutableDataU(), i420->StrideU(),
+        i420->MutableDataV(), i420->StrideV(), int_width, int_height);
+  } else {
+    // DXGI_FORMAT_B8G8R8A8_UNORM - byte order matches libyuv's ARGB
+    // (little-endian BGRA), the standard conversion for Windows capture data.
+    convert_result = libyuv::ARGBToI420(
+        static_cast<const uint8_t*>(mapped.pData),
+        static_cast<int>(mapped.RowPitch), i420->MutableDataY(),
+        i420->StrideY(), i420->MutableDataU(), i420->StrideU(),
+        i420->MutableDataV(), i420->StrideV(), int_width, int_height);
+  }
+
+  context->Unmap(staging_texture.Get(), 0);
+
+  if (convert_result != 0) {
+    RTC_LOG(LS_WARNING)
+        << "Fluxer GPU frame CPU fallback: libyuv conversion failed";
+    return nullptr;
+  }
+  return i420;
+}
+
+}  // namespace
+#endif  // defined(_WIN32)
 
 VideoFrameBuffer::VideoFrameBuffer(
     webrtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer)
@@ -162,6 +323,19 @@ int FluxerGpuFrameBuffer::height() const {
 
 webrtc::scoped_refptr<webrtc::I420BufferInterface>
 FluxerGpuFrameBuffer::ToI420() {
+#if defined(_WIN32)
+  if (kind_ == Kind::kD3D11Texture && d3d11_handle_ != 0) {
+    webrtc::scoped_refptr<webrtc::I420BufferInterface> converted =
+        ConvertD3D11TextureToI420(d3d11_handle_, width_, height_);
+    if (converted) {
+      return converted;
+    }
+    // Fall through to the generic warning/nullptr return below - the caller
+    // (e.g. PrepareNv12HostFrame) already treats a null ToI420() result as
+    // "this frame can't be encoded," the same degrade-gracefully behavior
+    // this had before this fallback existed.
+  }
+#endif
   RTC_LOG(LS_WARNING)
       << "Fluxer GPU frame cannot be CPU-mapped by the WebRTC fallback path";
   return nullptr;
@@ -556,6 +730,20 @@ uint32_t fluxer_gpu_buffer_format(
   return gpu->kind() == FluxerGpuFrameBuffer::Kind::kD3D11Texture
              ? gpu->dxgi_format()
              : gpu->drm_format();
+}
+
+bool mft_encoder_is_supported() {
+#if defined(USE_MFT_VIDEO_ENCODER)
+  try {
+    return webrtc::MftVideoEncoderFactory::IsSupported();
+  } catch (...) {
+    RTC_LOG(LS_WARNING)
+        << "mft_encoder_is_supported: probe threw, treating as unavailable";
+    return false;
+  }
+#else
+  return false;
+#endif
 }
 
 #ifndef __APPLE__

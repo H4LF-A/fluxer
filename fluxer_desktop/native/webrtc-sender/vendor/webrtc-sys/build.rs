@@ -149,6 +149,11 @@ fn main() {
             println!("cargo:rustc-link-lib=dylib=dxgi");
             println!("cargo:rustc-link-lib=dylib=dwmapi");
             println!("cargo:rustc-link-lib=dylib=shcore");
+            println!("cargo:rustc-link-lib=dylib=mfplat");
+            println!("cargo:rustc-link-lib=dylib=mf");
+            println!("cargo:rustc-link-lib=dylib=mfuuid");
+            println!("cargo:rustc-link-lib=dylib=mfreadwrite");
+            println!("cargo:rustc-link-lib=dylib=dxguid");
 
             //let path = env::current_dir().unwrap();
             //println!("cargo:rustc-link-search=native={}/vaapi-windows/x64/lib", path.display());
@@ -175,6 +180,11 @@ fn main() {
                 .file("src/nvidia/cuda_context.cpp")
                 .file("src/nvidia/cuda_driver_dynamic.cpp")
                 .flag("-DUSE_NVIDIA_VIDEO_ENCODER=1")
+                .include("src/mft")
+                .file("src/mft/d3d11_device_manager.cpp")
+                .file("src/mft/mft_h264_encoder_impl.cpp")
+                .file("src/mft/mft_encoder_factory.cpp")
+                .flag("-DUSE_MFT_VIDEO_ENCODER=1")
                 .flag("/std:c++20")
                 //.flag("/wd4819")
                 //.flag("/wd4068")

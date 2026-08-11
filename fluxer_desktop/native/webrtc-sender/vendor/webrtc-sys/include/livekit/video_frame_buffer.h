@@ -314,6 +314,12 @@ uint32_t fluxer_gpu_buffer_width(const std::unique_ptr<VideoFrameBuffer>& buffer
 uint32_t fluxer_gpu_buffer_height(const std::unique_ptr<VideoFrameBuffer>& buffer);
 uint32_t fluxer_gpu_buffer_format(const std::unique_ptr<VideoFrameBuffer>& buffer);
 
+// Probes for a hardware H.264 Media Foundation Transform (MFT) encoder on
+// Windows (see mft/mft_encoder_factory.cpp) - vendor-neutral, covers
+// NVIDIA/AMD/Intel alike. Always returns false when MFT support isn't
+// compiled in (non-Windows builds, or USE_MFT_VIDEO_ENCODER undefined).
+bool mft_encoder_is_supported();
+
 std::unique_ptr<VideoFrameBuffer> new_native_buffer_from_platform_image_buffer(PlatformImageBuffer *buffer);
 PlatformImageBuffer* native_buffer_to_platform_image_buffer(const std::unique_ptr<VideoFrameBuffer> &);
 

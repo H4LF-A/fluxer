@@ -48,6 +48,10 @@
 #include "vaapi/vaapi_encoder_factory.h"
 #endif
 
+#if defined(USE_MFT_VIDEO_ENCODER)
+#include "mft/mft_encoder_factory.h"
+#endif
+
 namespace livekit_ffi {
 
 namespace {
@@ -57,6 +61,7 @@ constexpr char kPreferredHwEncoderEnv[] = "LIVEKIT_PREFERRED_HW_ENCODER";
 enum class PreferredHwEncoder {
   kNvenc,
   kVaapi,
+  kMft,
 };
 
 struct PreferredHwEncoderConfig {
@@ -77,10 +82,13 @@ PreferredHwEncoderConfig GetPreferredHwEncoderConfig() {
   if (preferred_encoder_view == "vaapi") {
     return {PreferredHwEncoder::kVaapi, true};
   }
+  if (preferred_encoder_view == "mft") {
+    return {PreferredHwEncoder::kMft, true};
+  }
 
   RTC_LOG(LS_WARNING) << "Ignoring invalid LIVEKIT_PREFERRED_HW_ENCODER=\""
                       << preferred_encoder
-                      << "\"; expected \"nvenc\" or \"vaapi\".";
+                      << "\"; expected \"nvenc\", \"vaapi\", or \"mft\".";
   return {};
 }
 
@@ -130,6 +138,41 @@ void AddVaapiFactory(
 #endif
 }
 
+// MFT probing/instantiation must never let a failure (or, in principle, a
+// C++ exception from a misbehaving driver's COM implementation) escape past
+// this factory-construction step - the whole point of adding MFT is that it
+// degrades to "not registered" on any problem, never to "no screen share at
+// all." IsSupported() itself is already all-HRESULT/no-throw, but wrapping
+// the call site too costs nothing and is cheap insurance.
+void AddMftFactory(
+    std::vector<std::unique_ptr<webrtc::VideoEncoderFactory>>& factories,
+    bool preferred) {
+#if defined(USE_MFT_VIDEO_ENCODER)
+  try {
+    if (webrtc::MftVideoEncoderFactory::IsSupported()) {
+      factories.push_back(std::make_unique<webrtc::MftVideoEncoderFactory>());
+      return;
+    }
+  } catch (...) {
+    RTC_LOG(LS_WARNING)
+        << "MFT hardware encoder probing threw an exception; treating MFT "
+           "as unavailable.";
+  }
+
+  if (preferred) {
+    RTC_LOG(LS_WARNING)
+        << "LIVEKIT_PREFERRED_HW_ENCODER=mft requested, but no hardware "
+           "MFT encoder is available; falling back to other encoders.";
+  }
+#else
+  if (preferred) {
+    RTC_LOG(LS_WARNING)
+        << "LIVEKIT_PREFERRED_HW_ENCODER=mft requested, but MFT support is "
+           "not compiled in; falling back to other encoders.";
+  }
+#endif
+}
+
 }  // namespace
 
 using Factory = webrtc::VideoEncoderFactoryTemplate<
@@ -156,8 +199,19 @@ VideoEncoderFactory::InternalFactory::InternalFactory() {
   if (preferred_hw_encoder.encoder == PreferredHwEncoder::kVaapi) {
     AddVaapiFactory(factories_, preferred_hw_encoder.explicitly_set);
     AddNvencFactory(factories_, false);
+    AddMftFactory(factories_, false);
+  } else if (preferred_hw_encoder.encoder == PreferredHwEncoder::kMft) {
+    AddMftFactory(factories_, preferred_hw_encoder.explicitly_set);
+    AddNvencFactory(factories_, false);
+    AddVaapiFactory(factories_, false);
   } else {
+    // Default order: NVENC first (already the proven path once available),
+    // then MFT (vendor-neutral - covers AMD/Intel and any NVIDIA system
+    // where the NVENC-specific probe fails), then VAAPI (Linux only, a
+    // no-op on Windows), then software as InternalFactory's own final
+    // fallback tier (untouched by any of this).
     AddNvencFactory(factories_, preferred_hw_encoder.explicitly_set);
+    AddMftFactory(factories_, false);
     AddVaapiFactory(factories_, false);
   }
 }

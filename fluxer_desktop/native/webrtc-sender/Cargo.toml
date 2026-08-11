@@ -20,7 +20,7 @@ crate-type = ["cdylib", "rlib"]
 # the real addon build, but `cargo test --no-default-features` builds only the
 # pure YUV-conversion core so the unit tests run anywhere (no libwebrtc).
 default = ["publisher"]
-publisher = ["dep:livekit", "dep:tokio", "dep:futures-util"]
+publisher = ["dep:livekit", "dep:tokio", "dep:futures-util", "dep:webrtc-sys"]
 camera-native = ["dep:nokhwa"]
 # Exposes pub re-exports of private camera-background hot-path internals so the
 # criterion bench target can call them; never enabled for the shipped addon.
@@ -39,6 +39,11 @@ crossbeam-queue = "0.3"
 # one, connecting to a wss:// SFU fails with "TLS support not compiled in".
 # rustls-tls-native-roots = pure-Rust TLS using the OS root store (no OpenSSL).
 livekit = {version = "0.7", optional = true, features = ["rustls-tls-native-roots"]}
+# Only used directly by hardware_encoder.rs, to probe for the vendor-neutral
+# MFT hardware encoder (mft_encoder_is_supported) alongside the existing
+# NVENC probe - resolved to the vendored copy via [patch.crates-io] below,
+# same crate livekit/libwebrtc already pull in transitively.
+webrtc-sys = {version = "0.3", optional = true}
 tokio = {version = "1", optional = true, features = ["rt-multi-thread", "sync", "macros", "time"]}
 parking_lot = "0.12"
 fluxer_screen_frame_bus = { path = "../screen-frame-bus" }

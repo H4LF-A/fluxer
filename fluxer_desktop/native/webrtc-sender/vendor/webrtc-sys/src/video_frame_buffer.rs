@@ -178,6 +178,8 @@ pub mod ffi {
         fn fluxer_gpu_buffer_height(buffer: &UniquePtr<VideoFrameBuffer>) -> u32;
         fn fluxer_gpu_buffer_format(buffer: &UniquePtr<VideoFrameBuffer>) -> u32;
 
+        fn mft_encoder_is_supported() -> bool;
+
         unsafe fn new_native_buffer_from_platform_image_buffer(
             platform_native_buffer: *mut PlatformImageBuffer,
         ) -> UniquePtr<VideoFrameBuffer>;
