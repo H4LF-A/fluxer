@@ -5,6 +5,8 @@
 
 #[cfg(any(target_os = "windows", test))]
 mod compatibility;
+#[cfg(target_os = "windows")]
+mod cursor;
 #[cfg(any(target_os = "windows", test))]
 mod dxgi_capture;
 pub mod encoder_attach;

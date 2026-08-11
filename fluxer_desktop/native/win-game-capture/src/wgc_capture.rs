@@ -10,7 +10,8 @@ use windows::Graphics::DirectX::DirectXPixelFormat;
 use windows::Graphics::SizeInt32;
 use windows::Win32::Foundation::{HWND, LPARAM, RECT, RPC_E_CHANGED_MODE};
 use windows::Win32::Graphics::Direct3D11::{
-    D3D11_BIND_SHADER_RESOURCE, D3D11_BOX, D3D11_TEXTURE2D_DESC, D3D11_USAGE_DEFAULT, ID3D11Device,
+    D3D11_BIND_RENDER_TARGET, D3D11_BIND_SHADER_RESOURCE, D3D11_BOX, D3D11_TEXTURE2D_DESC,
+    D3D11_USAGE_DEFAULT, ID3D11Device,
     ID3D11DeviceContext, ID3D11Resource, ID3D11Texture2D,
 };
 use windows::Win32::Graphics::Dxgi::Common::{
@@ -26,6 +27,7 @@ use windows::Win32::System::WinRT::{RO_INIT_MULTITHREADED, RoInitialize};
 use windows::Win32::UI::WindowsAndMessaging::IsWindow;
 use windows::core::{BOOL, Interface};
 
+use crate::cursor::{CursorCompositor, capture_origin_for_target};
 use crate::dxgi_capture::{
     SharedTextureOutput, capture_timestamp_us, create_shared_output_texture,
     pacing_sleep_and_next_deadline, resolve_output_size,
@@ -252,6 +254,11 @@ struct WgcState {
     content_height: u32,
     out_w: u32,
     out_h: u32,
+    // Kept for the lifetime of the capture session (not per-frame) since
+    // creating the underlying D2D device/context is comparatively
+    // expensive. None if D2D setup failed - cursor compositing then just
+    // doesn't happen for this session, same as the pre-existing baseline.
+    cursor_compositor: Option<CursorCompositor>,
 }
 
 impl WgcState {
@@ -373,6 +380,7 @@ pub fn capture_loop(inner: &Arc<CaptureInner>, frame_interval: std::time::Durati
             inner,
             &ctx.context,
             state,
+            ctx.target,
             capture_id.as_deref(),
             capture_start,
             &mut frames_dropped_coalesced,
@@ -504,6 +512,13 @@ fn create_wgc_state_for_format(
     let session = frame_pool
         .CreateCaptureSession(&ctx.item)
         .map_err(|e| format!("Direct3D11CaptureFramePool.CreateCaptureSession: {e}"))?;
+    // Disable WGC's own automatic cursor compositing (Microsoft-acknowledged
+    // to make the cursor invisible in some fullscreen games) - we composite
+    // it ourselves instead, see cursor.rs. IGraphicsCaptureSession2 is a
+    // Windows 10 2004+ extension interface; on older Windows this cast just
+    // fails and we fall back to WGC's own (buggy, but pre-existing) default
+    // behavior rather than erroring the whole capture session out.
+    let _ = session.SetIsCursorCaptureEnabled(false);
     session
         .StartCapture()
         .map_err(|e| format!("GraphicsCaptureSession.StartCapture: {e}"))?;
@@ -516,6 +531,7 @@ fn create_wgc_state_for_format(
         content_height,
         out_w,
         out_h,
+        cursor_compositor: CursorCompositor::new(&ctx.device),
     })
 }
 
@@ -646,7 +662,14 @@ fn create_wgc_nv12_pipeline(
             Quality: 0,
         },
         Usage: D3D11_USAGE_DEFAULT,
-        BindFlags: D3D11_BIND_SHADER_RESOURCE.0 as u32,
+        // RENDER_TARGET is required (alongside SHADER_RESOURCE, which
+        // Nv12GpuConverter's VideoProcessorBlt read needs) so the cursor
+        // compositor can D2D-draw onto this texture via
+        // CreateBitmapFromDxgiSurface/SetTarget before NV12 conversion -
+        // without it, D2D bitmap creation for a render target either fails
+        // or (worse) leaves the D3D11/D2D device in a bad state, corrupting
+        // the frame the video processor reads right after.
+        BindFlags: (D3D11_BIND_SHADER_RESOURCE.0 | D3D11_BIND_RENDER_TARGET.0) as u32,
         CPUAccessFlags: 0,
         MiscFlags: 0,
     };
@@ -682,6 +705,7 @@ fn poll_and_emit_frame(
     inner: &Arc<CaptureInner>,
     context: &ID3D11DeviceContext,
     state: &mut WgcState,
+    target: WgcCaptureTarget,
     capture_id: Option<&str>,
     capture_start: std::time::Instant,
     frames_dropped_coalesced: &mut u64,
@@ -702,7 +726,7 @@ fn poll_and_emit_frame(
     let Some(frame) = newest else {
         return WgcFrameResult::NoFrame;
     };
-    let result = emit_wgc_frame(inner, context, state, capture_id, &frame, capture_start);
+    let result = emit_wgc_frame(inner, context, state, target, capture_id, &frame, capture_start);
     let _ = frame.Close();
     result
 }
@@ -725,6 +749,7 @@ fn emit_wgc_frame(
     inner: &Arc<CaptureInner>,
     context: &ID3D11DeviceContext,
     state: &mut WgcState,
+    target: WgcCaptureTarget,
     capture_id: Option<&str>,
     frame: &Direct3D11CaptureFrame,
     capture_start: std::time::Instant,
@@ -755,7 +780,13 @@ fn emit_wgc_frame(
         Err(e) => return WgcFrameResult::Error(e),
     };
     let timestamp_us = capture_timestamp_us(capture_start);
-    let Some(output_pipeline) = state.output_pipeline.as_mut() else {
+    let capture_origin = capture_origin_for_target(target);
+    let WgcState {
+        output_pipeline,
+        cursor_compositor,
+        ..
+    } = state;
+    let Some(output_pipeline) = output_pipeline.as_mut() else {
         return WgcFrameResult::Error("WGC shared texture output unavailable".into());
     };
     match output_pipeline {
@@ -768,6 +799,8 @@ fn emit_wgc_frame(
             content_width,
             content_height,
             timestamp_us,
+            cursor_compositor.as_mut(),
+            capture_origin,
         ),
         WgcOutputPipeline::Nv12(pipeline) => emit_wgc_nv12_frame(
             inner,
@@ -778,6 +811,8 @@ fn emit_wgc_frame(
             content_width,
             content_height,
             timestamp_us,
+            cursor_compositor.as_mut(),
+            capture_origin,
         ),
     }
 }
@@ -792,6 +827,8 @@ fn emit_wgc_bgra_frame(
     content_width: u32,
     content_height: u32,
     timestamp_us: i64,
+    cursor_compositor: Option<&mut CursorCompositor>,
+    capture_origin: Option<(i32, i32)>,
 ) -> WgcFrameResult {
     if shared_output.width != content_width || shared_output.height != content_height {
         return WgcFrameResult::Error(
@@ -800,7 +837,8 @@ fn emit_wgc_bgra_frame(
     }
     let slot_index = shared_output.next_slot_index();
     let slot = &shared_output.slots[slot_index];
-    let output_resource: ID3D11Resource = match slot.texture.cast() {
+    let output_texture = &slot.texture;
+    let output_resource: ID3D11Resource = match output_texture.cast() {
         Ok(resource) => resource,
         Err(e) => return WgcFrameResult::Error(format!("ID3D11Resource shared output cast: {e}")),
     };
@@ -825,6 +863,12 @@ fn emit_wgc_bgra_frame(
         );
         context.Flush();
     }
+    // Cursor compositing happens on the shared output texture (BGRA, the
+    // exact format this pipeline is used for) right before it's handed off
+    // - anything drawn here is what the encoder/viewers will see.
+    if let (Some(compositor), Some((origin_x, origin_y))) = (cursor_compositor, capture_origin) {
+        compositor.composite(output_texture, origin_x, origin_y);
+    }
     let _ = emit_shared_texture_frame(
         inner,
         frame_sink,
@@ -847,6 +891,8 @@ fn emit_wgc_nv12_frame(
     content_width: u32,
     content_height: u32,
     timestamp_us: i64,
+    cursor_compositor: Option<&mut CursorCompositor>,
+    capture_origin: Option<(i32, i32)>,
 ) -> WgcFrameResult {
     let src_box = D3D11_BOX {
         left: 0,
@@ -867,6 +913,14 @@ fn emit_wgc_nv12_frame(
             0,
             Some(&src_box),
         );
+    }
+    // Composite onto the BGRA/FP16 input texture *before* NV12 conversion,
+    // so the cursor rides through the existing color-space conversion for
+    // free - nv12_gpu.rs needs no changes.
+    if let (Some(compositor), Some((origin_x, origin_y))) = (cursor_compositor, capture_origin) {
+        if let Ok(input_texture) = pipeline.input_resource.cast::<ID3D11Texture2D>() {
+            compositor.composite(&input_texture, origin_x, origin_y);
+        }
     }
     let frame = match pipeline.converter.convert_shared_texture() {
         Ok(frame) => frame,

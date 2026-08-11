@@ -9,7 +9,6 @@ use std::ptr::null_mut;
 use windows_sys::Win32::{
     Foundation::{HWND, LPARAM, RECT},
     Graphics::Gdi::{EnumDisplayMonitors, HMONITOR},
-    System::Threading::GetCurrentProcessId,
     UI::WindowsAndMessaging::{
         EnumWindows, GW_OWNER, GWL_STYLE, GetWindow, GetWindowLongPtrW, GetWindowRect,
         GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsWindowVisible, WS_CHILD,
@@ -86,30 +85,33 @@ fn enumerate_monitor_sources() -> Vec<ScreenCaptureSourceDescriptor> {
 #[cfg(target_os = "windows")]
 fn enumerate_window_sources() -> Vec<ScreenCaptureSourceDescriptor> {
     struct EnumState {
-        own_pid: u32,
         sources: Vec<ScreenCaptureSourceDescriptor>,
     }
 
     unsafe extern "system" fn enum_window(hwnd: HWND, param: LPARAM) -> i32 {
         let state = &mut *(param as *mut EnumState);
-        if let Some(source) = describe_window_source(hwnd, state.own_pid) {
+        if let Some(source) = describe_window_source(hwnd) {
             state.sources.push(source);
         }
         1
     }
 
-    let mut state = EnumState {
-        own_pid: unsafe { GetCurrentProcessId() },
-        sources: Vec::new(),
-    };
+    let mut state = EnumState { sources: Vec::new() };
     unsafe {
         EnumWindows(Some(enum_window), &mut state as *mut _ as LPARAM);
     }
     state.sources
 }
 
+// Fluxer's own windows are intentionally NOT excluded here (video-capturable
+// like any other window) - audio-loop prevention for self-shares is handled
+// independently, on the Electron/JS side, via
+// ActiveScreenShareSource.isOwnWindow() / isActiveFluxerOwnedWindow()
+// (VoiceEngineV2AppScreenShareCaptureCoordinator.ts), which excludes audio
+// for a detected self-window share regardless of what this native source
+// list includes.
 #[cfg(target_os = "windows")]
-fn describe_window_source(hwnd: HWND, own_pid: u32) -> Option<ScreenCaptureSourceDescriptor> {
+fn describe_window_source(hwnd: HWND) -> Option<ScreenCaptureSourceDescriptor> {
     if hwnd.is_null() || unsafe { IsWindowVisible(hwnd) } == 0 {
         return None;
     }
@@ -125,7 +127,7 @@ fn describe_window_source(hwnd: HWND, own_pid: u32) -> Option<ScreenCaptureSourc
     unsafe {
         GetWindowThreadProcessId(hwnd, &mut pid);
     }
-    if pid == 0 || pid == own_pid {
+    if pid == 0 {
         return None;
     }
 
